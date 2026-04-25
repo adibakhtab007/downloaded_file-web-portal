@@ -385,12 +385,6 @@ The form includes:
 - three security questions
 - three answers
 
-### 10.2 After Registration
-
-- account is created in pending state
-- admin must approve it
-- until approved, login access is not granted
-
 <details>
 <summary><strong>📸 View Registration Page Screenshot</strong></summary>
 
@@ -404,6 +398,12 @@ The form includes:
   <em>Registration page — Web_users Registration page to get acces.</em>
 </p>
 </details>
+
+### 10.2 After Registration
+
+- account is created in pending state
+- admin must approve it
+- until approved, login access is not granted
 
 ---
 
