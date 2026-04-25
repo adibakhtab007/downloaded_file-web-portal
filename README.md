@@ -881,7 +881,11 @@ If you want passwordless sending through Microsoft 365 relay, use a proper Excha
 
 ## 15. Deployment & First-Time Setup
 
+This section covers the minimum steps required to bring up the Secure File Portal for the first time.
+
 ### 15.1 Prepare Host Paths
+
+Create the required host-side storage paths before starting the containers:
 
 ```bash
 mkdir -p /deployment/local
@@ -889,48 +893,155 @@ mkdir -p /deployment/nas
 mkdir -p /deployment/nginx_client_temp
 ```
 
-### 15.2 Configure `.env`
+These paths are used for:
 
-Create `.env` and populate all required values.
+- local storage root
+- NAS storage root
+- Nginx temporary upload buffering
 
-### 15.3 Start the Stack
+### 15.2 Generate Django Secret Key
 
-Using Podman Compose:
+Before creating the .env file, generate a secure Django secret key:
 
+```python3 -c "import secrets; print(secrets.token_urlsafe(50))"```
+
+Copy the generated output and keep it safe.
+
+```Important: The application will not start if DJANGO_SECRET_KEY is missing or empty.```
+
+### 15.3 Configure .env
+
+Create the .env file and populate all required values.
+
+At minimum, make sure the following are set correctly:
+
+```bash
+# Django Conf. segment
+DJANGO_SECRET_KEY='PASTE_GENERATED_SECRET_KEY_HERE'
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,<web-portal-domain_name>,<web-portal-application-server-IP>
+DJANGO_CSRF_TRUSTED_ORIGINS=https://localhost,https://<web-portal-domain_name>,https://<web-portal-application-server-IP>
+DJANGO_SUPERUSER_EMAIL=<change-me>
+DJANGO_SUPERUSER_FULL_NAME=<change-me>
+DJANGO_SUPERUSER_PASSWORD='<change-me>'
+
+#DATABASE Conf. segment
+DATABASE_NAME=<change-me>
+DATABASE_USER=<change-me>
+DATABASE_PASSWORD='<change-me>'
+DATABASE_HOST=db
+DATABASE_PORT=5432
+
+# REDIS Conf. segment
+REDIS_URL=redis://redis:6379/0
+
+#CELERY Conf. segment
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/1
+
+## EMAIL Conf. segment
+EMAIL_HOST=smtp.office365.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=<change-me>
+EMAIL_HOST_PASSWORD='<change-me>'
+DEFAULT_FROM_EMAIL=<change-me>
+
+# EMAIL Conf. segment [If you don't wanted to use email_pass or email_app-pass]
+EMAIL_HOST=<change-me>.mail.protection.outlook.com
+EMAIL_PORT=22
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=<change-me>
+
+# Default Conf. segment
+FILEPORTAL_SESSION_TIMEOUT_MINUTES=5
+FILEPORTAL_OTP_EXPIRY_SECONDS=120
+FILEPORTAL_OTP_MAX_ATTEMPTS=3
+FILEPORTAL_UPLOAD_MAX_BYTES=10737418240
+LOCAL_STORAGE_ROOT=/path/local
+NAS_STORAGE_ROOT=/path/nas
+PROTECTED_NGINX_PREFIX=/protected-download
+```
+
+Note: Review all values carefully before starting the application, especially SMTP, storage paths, database settings, and the initial superadmin credentials.
+
+### 15.4 Start the Stack
+Using Podman Compose
 ```bash
 cd /deployment/Application/fileportal_prod
 podman-compose up -d --build
 ```
-
-Using Docker Compose:
-
+Using Docker Compose
 ```bash
 cd /deployment/Application/fileportal_prod
 docker compose up -d --build
 ```
 
-### 15.4 Verify Containers
+### 15.5 Verify Containers
+
+Confirm that all required services are running:
+
+```podman-compose ps```
+
+Expected services:
 
 ```bash
-podman-compose ps
+db
+redis
+web
+celery
+celery-beat
+nginx
 ```
 
-### 15.5 Verify Bootstrap
+### 15.6 Verify Automatic Bootstrap
 
-The `web` service automatically:
-- applies migrations
-- runs `collectstatic`
-- seeds security questions
-- creates initial superadmin
+On startup, the web service is expected to perform the following automatically:
 
-If needed, run manually:
+wait for the database
+apply migrations
+run collectstatic
+seed security questions
+create the initial superadmin
+start Gunicorn
+
+Check the web logs to confirm successful startup:
+
+```podman-compose logs --tail=100 web```
+
+### 15.7 Run Bootstrap Manually If Needed
+
+If automatic bootstrap does not complete successfully, run the required steps manually:
 
 ```bash
 podman-compose exec web python manage.py makemigrations accounts audittrail notifications settings_app storage_index portal_admin portal_user
 podman-compose exec web python manage.py migrate
 podman-compose exec web python manage.py seed_security_questions
 podman-compose exec web python manage.py create_initial_superadmin
+podman-compose exec web python manage.py collectstatic --noinput
 ```
+
+### 15.8 Initial Access Check
+
+After the containers are up and bootstrap is complete:
+
+open the portal login page
+verify static files and branding load correctly
+log in with the initial superadmin account from ```.env```
+confirm OTP email delivery is working
+verify access to the Admin Dashboard
+
+### 15.9 Recommended First Validation
+
+After first startup, verify these core items immediately:
+
+the login page opens successfully
+OTP email is delivered
+the initial superadmin can log in
+Celery worker and Celery Beat are running
+storage roots are reachable
+Nginx is serving static files correctly
+audit logs are being written
 
 ---
 
