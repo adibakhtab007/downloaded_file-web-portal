@@ -150,6 +150,15 @@ Handles:
 - static and media serving
 - protected downloads via internal redirect
 
+### 3.1. Project Flow Diagram
+
+| Step                          | Screenshot                                        |
+|-------------------------------|---------------------------------------------------|
+| High-Level Architecture       | ![](./assets/High-Level Project Flow Diagram.png) |
+| Login and OTP Architecture    | ![](./assets/Login and OTP Flow Diagram.png)      |
+| Admin Management Architecture | ![](./assets/Admin Management Flow Diagram.png)   |
+| Folder Access Architecture    | ![](./assets/Folder Access Flow Diagram.png)      |
+
 ---
 
 ## 4. Core Services
