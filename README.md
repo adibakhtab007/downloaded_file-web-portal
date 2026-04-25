@@ -154,10 +154,10 @@ Handles:
 
 | Step                          | Screenshot                                               |
 |-------------------------------|----------------------------------------------------------|
-| High-Level Architecture       | ![](./readme_images/High-Level Project Flow Diagram.png) |
-| Login and OTP Architecture    | ![](./readme_images/Login and OTP Flow Diagram.png)      |
-| Admin Management Architecture | ![](./readme_images/Admin Management Flow Diagram.png)   |
-| Folder Access Architecture    | ![](./readme_images/Folder Access Flow Diagram.png)      |
+| High-Level Architecture       | ![](./readme_images/high_level_project_flow_diagram.png) |
+| Login and OTP Architecture    | ![](./readme_images/login_and_otp_flow_diagram.png)      |
+| Admin Management Architecture | ![](./readme_images/admin_management_flow_diagram.png)   |
+| Folder Access Architecture    | ![](./readme_images/folder_access_flow_diagram.png)      |
 
 ---
 
