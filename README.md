@@ -1,4 +1,17 @@
 # Secure File Portal
+
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&style=flat-square)
+![Django](https://img.shields.io/badge/Django-Web%20Portal-0C4B33?logo=django&logoColor=white&style=flat-square)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white&style=flat-square)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white&style=flat-square)
+![Celery](https://img.shields.io/badge/Celery-Worker-37814A?logo=celery&logoColor=white&style=flat-square)
+![Nginx](https://img.shields.io/badge/Nginx-Reverse%20Proxy-009639?logo=nginx&logoColor=white&style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Rocky%20Linux%209.7-blue?style=flat-square)
+![Authentication](https://img.shields.io/badge/Auth-Email%20%2B%20OTP-success?style=flat-square)
+![Container](https://img.shields.io/badge/Container-Podman%20Compose-purple?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=flat-square)
+![License](https://img.shields.io/badge/License-Internal-lightgrey?style=flat-square)
+
 > **Secure file sharing and access management system** built with **Django**, **PostgreSQL**, **Redis**, **Celery**, and **Nginx**.
 
 ---
