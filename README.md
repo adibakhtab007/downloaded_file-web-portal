@@ -655,7 +655,7 @@ Purpose:
 <br>
 
 <p align="center">
-  <img src="./readme_images/delete_files_page.png" alt="Delete File Page" width="900">
+  <img src="./readme_images/delete_file_page.png" alt="Delete File Page" width="900">
 </p>
 
 <p align="center">
