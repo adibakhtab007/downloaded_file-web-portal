@@ -301,7 +301,7 @@ Common statuses used in the system:
 <br>
 
 <p align="center">
-  <img src="./readme_images/login_page.png" alt="Audit Log Page" width="900">
+  <img src="./readme_images/login_page.png" alt="Audit Log Page" width="420">
 </p>
 
 <p align="center">
@@ -326,7 +326,7 @@ The portal includes:
 <br>
 
 <p align="center">
-  <img src="./readme_images/otp_page.png" alt="Audit Log Page" width="900">
+  <img src="./readme_images/otp_page.png" alt="Audit Log Page" width="420">
 </p>
 
 <p align="center">
@@ -360,7 +360,7 @@ If the security answers fail repeatedly, the account may become `SECURITY_BLOCKE
 <br>
 
 <p align="center">
-  <img src="./readme_images/forgot_password_page.png" alt="Audit Log Page" width="900">
+  <img src="./readme_images/forgot_password_page.png" alt="Audit Log Page" width="420">
 </p>
 
 <p align="center">
@@ -397,7 +397,7 @@ The form includes:
 <br>
 
 <p align="center">
-  <img src="./readme_images/register_page.png" alt="Audit Log Page" width="900">
+  <img src="./readme_images/register_page.png" alt="Audit Log Page" width="420">
 </p>
 
 <p align="center">
@@ -435,7 +435,7 @@ It also shows summary counts for:
 <br>
 
 <p align="center">
-  <img src="./readme_images/admin_dashboard_page.png" alt="Admin Dashboard Page" width="850">
+  <img src="./readme_images/admin_dashboard_page.png" alt="Admin Dashboard Page" width="420">
 </p>
 
 <p align="center">
@@ -484,7 +484,7 @@ Purpose:
 <br>
 
 <p align="center">
-  <img src="./readme_images/users_page.png" alt="Users Page" width="850">
+  <img src="./readme_images/users_page.png" alt="Users Page" width="420">
 </p>
 
 <p align="center">
@@ -513,7 +513,7 @@ If the email exists in deleted state, the current logic may restore it.
 <br>
 
 <p align="center">
-  <img src="./readme_images/create_admin_user_page.png" alt="Create Admin User Page" width="850">
+  <img src="./readme_images/create_admin_user_page.png" alt="Create Admin User Page" width="420">
 </p>
 
 <p align="center">
@@ -540,7 +540,7 @@ If folders exist on disk but not in the database, they will not appear until a s
 <br>
 
 <p align="center">
-  <img src="./readme_images/folders_page.png" alt="Folders Page" width="850">
+  <img src="./readme_images/folders_page.png" alt="Folders Page" width="420">
 </p>
 
 <p align="center">
@@ -568,7 +568,7 @@ Current behavior keeps the user on the same page after creation and shows succes
 <br>
 
 <p align="center">
-  <img src="./readme_images/create_folder_page.png" alt="Create Folder Page" width="850">
+  <img src="./readme_images/create_folder_page.png" alt="Create Folder Page" width="420">
 </p>
 
 <p align="center">
@@ -593,7 +593,7 @@ Supported behavior:
 <br>
 
 <p align="center">
-  <img src="./readme_images/upload_file_page.png" alt="Upload File Page" width="850">
+  <img src="./readme_images/upload_file_page.png" alt="Upload File Page" width="420">
 </p>
 
 <p align="center">
@@ -635,7 +635,7 @@ Rules:
 <br>
 
 <p align="center">
-  <img src="./readme_images/delete_folder_page.png" alt="Delete Folder Page" width="850">
+  <img src="./readme_images/delete_folder_page.png" alt="Delete Folder Page" width="420">
 </p>
 
 <p align="center">
@@ -655,7 +655,7 @@ Purpose:
 <br>
 
 <p align="center">
-  <img src="./readme_images/delete_files_page.png" alt="Delete File Page" width="850">
+  <img src="./readme_images/delete_files_page.png" alt="Delete File Page" width="420">
 </p>
 
 <p align="center">
@@ -685,7 +685,7 @@ The page also supports:
 <br>
 
 <p align="center">
-  <img src="./readme_images/grant_folder_access_page.png" alt="Grant Folder Access Page" width="850">
+  <img src="./readme_images/grant_folder_access_page.png" alt="Grant Folder Access Page" width="420">
 </p>
 
 <p align="center">
@@ -711,7 +711,7 @@ Depending on your recursive revoke logic, subtree access may also be removed.
 <br>
 
 <p align="center">
-  <img src="./readme_images/revoke_folder_access_page.png" alt="Revoke Folder Access Page" width="850">
+  <img src="./readme_images/revoke_folder_access_page.png" alt="Revoke Folder Access Page" width="420">
 </p>
 
 <p align="center">
@@ -741,7 +741,7 @@ Trace ID groups related actions in one user journey, for example:
 <br>
 
 <p align="center">
-  <img src="./readme_images/audit_log_page.png" alt="Audit Log Page" width="900">
+  <img src="./readme_images/audit_log_page.png" alt="Audit Log Page" width="420">
 </p>
 
 <p align="center">
