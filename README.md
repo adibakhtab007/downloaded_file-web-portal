@@ -1,95 +1,181 @@
-# Secure File Portal README
+# Secure File Portal
+> **Secure file sharing and access management system** built with **Django**, **PostgreSQL**, **Redis**, **Celery**, and **Nginx**.
 
-## 1. Purpose
+---
 
-This web portal is a secure file sharing and file access management system built with Django, PostgreSQL, Redis, Celery, and Nginx.
+## Author
 
-It is designed to provide:
+**Name:** Adib  
+**Role:** Senior Technical Operation Engineer  
+
+---
+
+## Table of Contents
+
+- [1. Overview](#1-overview)
+- [2. Key Features](#2-key-features)
+- [3. High-Level Architecture](#3-high-level-architecture)
+- [4. Core Services](#4-core-services)
+- [5. Main Storage Paths](#5-main-storage-paths)
+- [6. Main URLs](#6-main-urls)
+- [7. User Roles](#7-user-roles)
+- [8. Account Statuses](#8-account-statuses)
+- [9. Authentication & Security Flows](#9-authentication--security-flows)
+- [10. Registration Flow](#10-registration-flow)
+- [11. Admin Portal Guide](#11-admin-portal-guide)
+- [12. Web User Portal Guide](#12-web-user-portal-guide)
+- [13. Email & OTP System](#13-email--otp-system)
+- [14. Environment Variables](#14-environment-variables)
+- [15. Deployment & First-Time Setup](#15-deployment--first-time-setup)
+- [16. Storage Root & Scan Process](#16-storage-root--scan-process)
+- [17. Branding & Static Files](#17-branding--static-files)
+- [18. Useful Operational Commands](#18-useful-operational-commands)
+- [19. Troubleshooting](#19-troubleshooting)
+- [20. Security Notes](#20-security-notes)
+- [21. Maintenance Checklist](#21-maintenance-checklist)
+- [22. Post-Deployment Validation Checklist](#22-post-deployment-validation-checklist)
+
+---
+
+## 1. Overview
+
+**Secure File Portal** is a web-based file sharing and access management platform designed for controlled internal and external access to files and folders.
+
+It provides:
 
 - email-based login
 - OTP-based authentication
 - admin-controlled user approval
-- folder-level access control for web users
+- folder-level access control
 - protected file downloads
 - audit logging with Trace ID / journey tracking
 - password expiry and password history control
-- account unlock flow using security questions
-- scheduled folder and file indexing from local and NAS storage
+- account unlock via security questions
+- scheduled indexing of local and NAS storage
 
-This README explains both:
+This document explains:
 
 1. how to deploy and operate the portal
-2. how administrators and end users use the portal
+2. how administrators use the platform
+3. how end users interact with the portal
 
 ---
 
-## 2. High-Level Architecture
+## 2. Key Features
 
-### Main components
+### Security
+- email + password login
+- OTP verification
+- session timeout enforcement
+- password expiry
+- password history validation
+- account blocking after repeated failures
+- unlock workflow using security questions
+- protected file access through Django authorization + Nginx internal redirect
 
-- **Django web app**
-  - authentication
-  - admin portal
-  - user portal
-  - access control
-  - audit trail
-- **PostgreSQL**
-  - application database
-- **Redis**
-  - Celery broker and result backend
-- **Celery worker**
-  - sends OTP email
-  - sends reminders
-  - performs cleanup tasks
-  - runs storage scan tasks
-- **Celery Beat**
-  - scheduled jobs
-- **Nginx**
-  - HTTPS reverse proxy
-  - static/media serving
-  - protected download via internal redirect
+### Administration
+- approve or reject registered users
+- create admin accounts
+- disable, unblock, and re-enable users
+- grant and revoke folder permissions
+- create folders
+- upload and delete files
+- review audit trails and Trace IDs
 
-### Main storage paths
+### Operations
+- background jobs with Celery
+- periodic storage indexing
+- email-based OTP and notification workflow
+- structured deployment with containerized services
+
+---
+
+## 3. High-Level Architecture
+
+### Main Components
+
+#### Django Web App
+Handles:
+- authentication
+- admin portal
+- web user portal
+- access control
+- audit trail
+- password and profile workflows
+
+#### PostgreSQL
+Stores:
+- users
+- profiles
+- OTP data
+- password history
+- audit logs
+- folder/file metadata
+- folder permissions
+- settings
+
+#### Redis
+Used for:
+- Celery broker
+- Celery result backend
+
+#### Celery Worker
+Handles background tasks such as:
+- OTP email sending
+- password reminder emails
+- admin alert emails
+- cleanup jobs
+- storage scanning
+
+#### Celery Beat
+Runs scheduled tasks periodically.
+
+#### Nginx
+Handles:
+- HTTPS reverse proxy
+- static and media serving
+- protected downloads via internal redirect
+
+---
+
+## 4. Core Services
+
+The application stack contains these services:
+
+- `db` → PostgreSQL 17
+- `redis` → Redis 7
+- `web` → Django + Gunicorn
+- `celery` → background worker
+- `celery-beat` → task scheduler
+- `nginx` → reverse proxy and static/protected file handling
+
+### `web` Container Startup Behavior
+
+At startup, the `web` service automatically:
+
+1. waits for the database
+2. applies migrations
+3. runs `collectstatic`
+4. seeds security questions
+5. runs `create_initial_superadmin`
+6. starts Gunicorn
+
+---
+
+## 5. Main Storage Paths
 
 The application uses two storage roots:
 
 - `LOCAL_STORAGE_ROOT=/deployment/local`
 - `NAS_STORAGE_ROOT=/deployment/nas`
 
-These are mounted into the containers and scanned into the database.
+These paths are scanned and indexed into the database.
 
 ---
 
-## 3. Container Services
-
-The project starts the following services:
-
-- `db` → PostgreSQL 17
-- `redis` → Redis 7
-- `web` → Django + Gunicorn
-- `celery` → background worker
-- `celery-beat` → scheduler
-- `nginx` → reverse proxy and static/protected file serving
-
-### Runtime behavior of `web`
-
-When the `web` container starts, it automatically:
-
-1. waits for database
-2. runs migrations
-3. runs `collectstatic`
-4. seeds security questions
-5. runs `create_initial_superadmin`
-6. starts Gunicorn
-
-That means a basic initial bootstrap can be done automatically if `.env` is configured properly.
-
----
-
-## 4. Main URLs
+## 6. Main URLs
 
 ### Authentication
-
 - Login: `/auth/login/`
 - Register: `/auth/register/`
 - OTP Verification: `/auth/otp/`
@@ -99,7 +185,6 @@ That means a basic initial bootstrap can be done automatically if `.env` is conf
 - Logout: `/auth/logout/`
 
 ### Admin Portal
-
 - Dashboard: `/admin-portal/`
 - Users: `/admin-portal/users/`
 - Create Admin User: `/admin-portal/create-admin/`
@@ -114,7 +199,6 @@ That means a basic initial bootstrap can be done automatically if `.env` is conf
 - Journey Detail: `/admin-portal/journey/<trace_id>/`
 
 ### Web User Portal
-
 - Dashboard: `/portal/`
 - Folder Detail: `/portal/folders/<folder_id>/`
 - Download File: `/portal/download/<file_id>/`
@@ -124,51 +208,45 @@ That means a basic initial bootstrap can be done automatically if `.env` is conf
 
 ---
 
-## 5. User Roles
+## 7. User Roles
 
-The portal uses three functional roles.
+### 7.1 Super Admin
+Highest privileged role.
 
-### 5.1 Super Admin
-
-Super Admin is the highest privileged role.
-
-Main responsibilities:
-
+Can:
 - access full admin dashboard
 - create admin users
-- approve or reject web user registration
-- disable, unblock, re-enable users with temporary password
+- approve or reject web users
+- disable, unblock, and re-enable users
 - delete users
 - create folders
 - upload and delete files
-- grant and revoke folder permissions
-- view audit logs and journey details
+- grant and revoke permissions
+- review audit logs and journeys
 
-### 5.2 Admin Read-only
+### 7.2 Admin Read-only
+Restricted admin role.
 
-Admin Read-only is a restricted admin role.
+Intended for limited admin operations.  
+Before production hardening, review final privilege boundaries carefully to ensure only the intended actions remain enabled.
 
-In principle this role is intended to be limited compared with Super Admin. However, you should review the current implementation carefully before production hardening, because some non-superadmin operational actions are still available through the current admin pages and views.
+### 7.3 Web User
+Standard user role.
 
-### 5.3 Web User
-
-Web users are the normal end users of the portal.
-
-Main responsibilities:
-
+Can:
 - self-register
-- wait for admin approval
+- wait for approval
 - log in with email + password + OTP
-- browse only authorized folders
-- download only authorized files
+- browse authorized folders
+- download authorized files
 - manage profile and password
-- use unlock flow when blocked
+- use account unlock flow if blocked
 
 ---
 
-## 6. Account Statuses
+## 8. Account Statuses
 
-Typical statuses used in the system:
+Common statuses used in the system:
 
 - `PENDING_APPROVAL`
 - `APPROVED`
@@ -179,97 +257,94 @@ Typical statuses used in the system:
 - `REJECTED`
 - `DELETED`
 
-### Meaning summary
+### Meaning Summary
 
-- **Pending Approval** → user registered, waiting for admin approval
-- **Approved** → user can use the portal normally
-- **Blocked** → login blocked because of wrong password attempts
-- **Security Blocked** → unlock/security question flow failed, account blocked
-- **Disabled - Password Expired** → password expired, account disabled until reset
-- **Disabled by Admin** → admin manually disabled the account
-- **Rejected** → registration was rejected by admin
-- **Deleted** → account soft-deleted
+- **Pending Approval** → registration submitted, waiting for admin action
+- **Approved** → active and usable
+- **Blocked** → blocked after repeated bad password attempts
+- **Security Blocked** → blocked after failed security-answer flow
+- **Disabled - Password Expired** → password expired and must be reset
+- **Disabled by Admin** → manually disabled by admin
+- **Rejected** → registration rejected
+- **Deleted** → soft-deleted account
 
 ---
 
-## 7. Authentication Flow
+## 9. Authentication & Security Flows
 
-### 7.1 Login flow
+### 9.1 Login Flow
 
-1. User opens login page
-2. User enters email and password
-3. If password is valid and account is allowed
-4. OTP is created and emailed to the user
-5. User enters OTP
-6. Login completes successfully
-7. User is routed to the correct portal based on role
+1. user opens login page
+2. user enters email and password
+3. if credentials and account status are valid
+4. OTP is generated and emailed
+5. user enters OTP
+6. login is completed
+7. user is routed according to role
 
-### 7.2 Login protection
+### 9.2 Security Controls
 
 The portal includes:
 
 - OTP verification
 - failed login counting
-- account block after repeated failures
-- activity timeout middleware
-- password expiry handling
+- automatic block after repeated failures
+- session timeout middleware
+- password expiry enforcement
+- password history checks
 
-### 7.3 Expired password flow
+### 9.3 Expired Password Flow
 
-If the password is expired:
-
-1. user enters valid email/password
-2. portal does not complete login
+1. user submits valid email/password
+2. portal detects password expiry
 3. OTP is sent
 4. user is redirected to expired password reset page
 5. user sets a new password
 6. user logs in again
 
-### 7.4 Account unlock flow
-
-If the user is blocked:
+### 9.4 Account Unlock Flow
 
 1. open `/auth/unlock/`
 2. enter email
 3. answer three security questions
-4. if answers are correct, OTP is sent
+4. if correct, OTP is sent
 5. verify OTP
 6. account is unlocked
 
-If security answers fail, the account may become `SECURITY_BLOCKED`.
+If the security answers fail repeatedly, the account may become `SECURITY_BLOCKED`.
 
 ---
 
-## 8. Registration Flow
+## 10. Registration Flow
 
-### 8.1 Web user registration
+### 10.1 Web User Registration
 
-A web user registers from `/auth/register/`.
+Users register from `/auth/register/`.
 
-Registration form includes:
+The form includes:
 
 - full name
 - email
 - password
 - confirm password
-- three different security questions
+- three security questions
 - three answers
 
-### 8.2 After registration
+### 10.2 After Registration
 
 - account is created in pending state
-- admin must approve it from the Users page
-- until approved, user cannot access the portal
+- admin must approve it
+- until approved, login access is not granted
 
 ---
 
-## 9. Admin Portal Usage Guide
+## 11. Admin Portal Guide
 
-## 9.1 Admin Dashboard
+### 11.1 Dashboard
 
-The dashboard is the central entry point for administrators.
+The dashboard is the main navigation point for administrators.
 
-It provides quick navigation to:
+It links to:
 
 - Users
 - Folders
@@ -277,7 +352,7 @@ It provides quick navigation to:
 - Revoke Folder Permissions
 - Audit Logs
 
-It also shows summary counts such as:
+It also shows summary counts for:
 
 - pending users
 - web users
@@ -285,57 +360,47 @@ It also shows summary counts such as:
 - folders
 - files
 
----
-
-## 9.2 Users Page
+### 11.2 Users Page
 
 Purpose:
-
-- manage all registered users
+- manage users
 - filter by status
 - search by email
 - approve, reject, disable, unblock, re-enable, delete
 
-### Common actions
+#### Common Actions
 
-#### Approve a pending user
-
-1. go to Users page
+**Approve a pending user**
+1. open Users
 2. filter by `Pending Approval`
 3. click `Approved`
 
-#### Reject a pending user
-
-1. go to Users page
+**Reject a pending user**
+1. open Users
 2. filter by `Pending Approval`
 3. click `Reject`
 
-#### Disable an approved user
-
+**Disable an approved user**
 1. filter by `Approved`
 2. click `Disabled`
 
-#### Set temporary password / re-enable user
-
-1. find blocked / expired / disabled user
+**Set a temporary password / re-enable user**
+1. find blocked, expired, or disabled user
 2. click `Temp Password`
-3. portal sets a new temporary password
+3. a temporary password is set
 4. user must change password after login
 
-#### Delete a web user
+**Delete a web user**
+- includes confirmation logic
+- removes folder permissions
+- prevents re-created users from inheriting old access
 
-For web users, delete includes confirmation logic and also removes folder permissions, so a recreated user does not inherit old access.
-
----
-
-## 9.3 Create Admin User
+### 11.3 Create Admin User
 
 Purpose:
+- create `Super Admin` or `Admin Read-only` accounts
 
-- create Super Admin or Admin Read-only users
-
-Typical flow:
-
+Flow:
 1. open `Create Admin User`
 2. enter full name
 3. enter email
@@ -343,246 +408,182 @@ Typical flow:
 5. enter password
 6. click `Create`
 
-If the email previously existed in deleted state, the account may be restored depending on the current logic.
+If the email exists in deleted state, the current logic may restore it.
 
----
-
-## 9.4 Folders Page
+### 11.4 Folders Page
 
 Purpose:
-
-- view indexed folders from configured storage roots
+- view indexed folders
 - create folders
 - upload files
 - delete folders
 - delete files
 
-Important note:
+> **Important:** This page reads from the **database index**, not directly from disk.
 
-The page reads folders from the **database index**, not directly from the filesystem.
+If folders exist on disk but not in the database, they will not appear until a scan updates the DB.
 
-So if folders exist on disk but not in the database, they will not appear until storage roots are scanned.
-
----
-
-## 9.5 Create Folder
+### 11.5 Create Folder
 
 Purpose:
-
-- create a new folder under a selected storage root
+- create a new folder under a storage root
 
 Flow:
-
-1. go to Folders → `Create Folder`
+1. open `Create Folder`
 2. choose storage root
 3. enter display name
 4. enter relative path
 5. click `Create`
 
-Current behavior keeps the user on the same page after creation and shows success on the same page.
+Current behavior keeps the user on the same page after creation and shows success there.
 
----
-
-## 9.6 Upload File
+### 11.6 Upload File
 
 Purpose:
-
 - upload one or multiple files into a selected folder
 
-Current implementation supports:
-
+Supported behavior:
 - multi-file upload
-- total upload limit controlled by `.env`
+- total upload limit from `.env`
 - client-side size validation popup
-- server-side validation
+- server-side size validation
 
-### Upload limit
-
+#### Upload Limit
 Controlled by:
-
-- `FILEPORTAL_UPLOAD_MAX_BYTES`
-
-Example for 10 GB:
 
 ```env
 FILEPORTAL_UPLOAD_MAX_BYTES=10737418240
 ```
 
-### Important infrastructure note
+Example above = **10 GB**
 
+#### Infrastructure Requirements
 Large uploads require:
-
 - correct Nginx `client_max_body_size`
-- correct `client_body_temp_path`
-- enough disk space for container storage and temp upload area
+- correct Nginx `client_body_temp_path`
+- enough disk space for temp upload area
+- enough container storage
+- properly aligned Gunicorn timeout
 
----
-
-## 9.7 Delete Folder
+### 11.7 Delete Folder
 
 Purpose:
-
-- delete a folder from filesystem and mark it inactive in DB
+- delete a folder from filesystem
+- mark it inactive in DB
 
 Rules:
-
 - root folders cannot be deleted
-- folder must be empty first
-- active child folders and files must be removed/moved first
+- folder must be empty
+- subfolders/files must be removed or moved first
 
----
-
-## 9.8 Delete File
+### 11.8 Delete File
 
 Purpose:
+- delete a file from filesystem
+- mark it inactive in DB
 
-- remove a file from filesystem and mark it inactive in DB
-
----
-
-## 9.9 Grant Folder Permissions
+### 11.9 Grant Folder Permissions
 
 Purpose:
-
 - assign folder access to users
 
 Flow:
-
 1. open `Grant Folder Permissions`
 2. choose folder
 3. choose user
 4. click `Grant Read Access`
 
-The user dropdown should only show allowed user statuses based on the current logic.
-
 The page also supports:
-
-- search by email
-- current permissions list
+- email search
+- permission listing
 - pagination
 
----
-
-## 9.10 Revoke Folder Permissions
+### 11.10 Revoke Folder Permissions
 
 Purpose:
-
-- revoke existing folder access
+- revoke user access to folders
 
 Flow:
-
 1. open `Revoke Folder Permissions`
-2. find permission row
+2. locate permission row
 3. click `Delete`
 
-This removes the permission and may also revoke inherited subtree access depending on the path and recursive revoke logic.
+Depending on your recursive revoke logic, subtree access may also be removed.
 
----
-
-## 9.11 Audit Logs
+### 11.11 Audit Logs
 
 Purpose:
-
 - review security and operational events
 - filter by Trace ID
 - search by date
 - search by date/time range
 - drill into journey details
 
-### Trace ID
-
-Trace ID groups actions within one session/journey so you can follow:
-
+#### Trace ID
+Trace ID groups related actions in one user journey, for example:
 - login attempts
 - OTP events
-- user actions
-- logout / end state
+- portal actions
+- logout-related events
 
 ---
 
-## 10. Web User Portal Usage Guide
+## 12. Web User Portal Guide
 
-## 10.1 Dashboard
+### 12.1 Dashboard
 
-Purpose:
+Shows only folders that the user is allowed to access.
 
-- show only folders that the user is directly permitted to access
+### 12.2 Folder Detail
 
-The dashboard lists authorized top-level or directly granted folders.
-
----
-
-## 10.2 Folder Detail
-
-Purpose:
-
+Allows the user to:
 - open a folder
-- view visible child folders
+- browse visible child folders
 - view files
 
-Access is checked against granted folder permissions and folder ancestry.
-
 If unauthorized access is attempted:
-
 - access is denied
-- audit event is created
-- admin alert email can be sent
+- an audit event is created
+- admin alert logic may trigger depending on configuration
 
----
+### 12.3 Download File
 
-## 10.3 Download File
+Files are downloaded securely using:
+- Django authorization
+- Nginx protected internal redirect
 
-Purpose:
+Files are not exposed as public URLs.
 
-- securely download authorized files
-
-The portal uses Django authorization plus Nginx protected internal redirect.
-
-Files are not exposed directly as public file URLs.
-
----
-
-## 10.4 Profile Page
+### 12.4 Profile Page
 
 Purpose:
-
 - view user details
-- see password expiry date
+- view password expiry
 - change password
 
-Profile typically shows:
-
+Typically includes:
 - full name
 - email
-- password expiry time
+- password expiry date
 
----
+### 12.5 Change Password
 
-## 10.5 Change Password
-
-Purpose:
-
-- change password with current password + OTP verification
-
-Typical flow:
-
+Flow:
 1. open profile
-2. go to change password page
+2. open change password page
 3. enter current password
 4. enter new password
 5. confirm new password
 6. enter OTP
 7. submit
 
----
+### 12.6 Forced Password Reset
 
-## 10.6 Forced Password Reset
-
-This page is used when the user must change password before continuing.
+Used when the user must change password before continuing.
 
 ---
 
-## 11. Email / OTP System
+## 13. Email & OTP System
 
 The portal uses Celery tasks to send:
 
@@ -593,9 +594,7 @@ The portal uses Celery tasks to send:
 - generic emails
 - admin alert emails
 
-### Important SMTP note
-
-If you use normal Microsoft 365 authenticated SMTP submission, use:
+### Normal Microsoft 365 SMTP Submission
 
 ```env
 EMAIL_HOST=smtp.office365.com
@@ -606,18 +605,17 @@ EMAIL_HOST_PASSWORD=your_password_or_app_password
 DEFAULT_FROM_EMAIL=your_mailbox@example.com
 ```
 
-Do **not** use port `22` for SMTP.
+> Do **not** use port `22` for SMTP.
 
-If you want passwordless sending through Microsoft 365 relay, use a proper Exchange Online relay/connector design with the correct relay host and port, normally port `25`, and only after mail-flow connector configuration is completed.
+### Microsoft 365 Relay Note
+
+If you want passwordless sending through Microsoft 365 relay, use a proper Exchange Online relay/connector design with the correct relay host and typically port `25`, only after mail-flow connector configuration is completed.
 
 ---
 
-## 12. Environment Variables
-
-Below are the important `.env` values.
+## 14. Environment Variables
 
 ### Django
-
 - `DJANGO_SECRET_KEY`
 - `DJANGO_DEBUG`
 - `DJANGO_ALLOWED_HOSTS`
@@ -627,7 +625,6 @@ Below are the important `.env` values.
 - `DJANGO_SUPERUSER_PASSWORD`
 
 ### Database
-
 - `DATABASE_NAME`
 - `DATABASE_USER`
 - `DATABASE_PASSWORD`
@@ -635,13 +632,11 @@ Below are the important `.env` values.
 - `DATABASE_PORT`
 
 ### Redis / Celery
-
 - `REDIS_URL`
 - `CELERY_BROKER_URL`
 - `CELERY_RESULT_BACKEND`
 
 ### Email
-
 - `EMAIL_HOST`
 - `EMAIL_PORT`
 - `EMAIL_USE_TLS`
@@ -649,8 +644,7 @@ Below are the important `.env` values.
 - `EMAIL_HOST_PASSWORD`
 - `DEFAULT_FROM_EMAIL`
 
-### Portal controls
-
+### Portal Controls
 - `FILEPORTAL_SESSION_TIMEOUT_MINUTES`
 - `FILEPORTAL_OTP_EXPIRY_SECONDS`
 - `FILEPORTAL_OTP_MAX_ATTEMPTS`
@@ -661,11 +655,9 @@ Below are the important `.env` values.
 
 ---
 
-## 13. First-Time Setup
+## 15. Deployment & First-Time Setup
 
-## 13.1 Prepare host paths
-
-Ensure these host paths exist:
+### 15.1 Prepare Host Paths
 
 ```bash
 mkdir -p /deployment/local
@@ -673,11 +665,11 @@ mkdir -p /deployment/nas
 mkdir -p /deployment/nginx_client_temp
 ```
 
-## 13.2 Configure `.env`
+### 15.2 Configure `.env`
 
-Create and populate `.env` with correct values.
+Create `.env` and populate all required values.
 
-## 13.3 Start the stack
+### 15.3 Start the Stack
 
 Using Podman Compose:
 
@@ -693,20 +685,19 @@ cd /deployment/Application/fileportal_prod
 docker compose up -d --build
 ```
 
-## 13.4 Verify containers
+### 15.4 Verify Containers
 
 ```bash
 podman-compose ps
 ```
 
-## 13.5 Verify application bootstrap
+### 15.5 Verify Bootstrap
 
-The `web` service will automatically:
-
-- run migrations
-- collect static
-- seed security questions
-- create initial superadmin
+The `web` service automatically:
+- applies migrations
+- runs `collectstatic`
+- seeds security questions
+- creates initial superadmin
 
 If needed, run manually:
 
@@ -719,28 +710,24 @@ podman-compose exec web python manage.py create_initial_superadmin
 
 ---
 
-## 14. Storage Root and Folder Scan
+## 16. Storage Root & Scan Process
 
-After a fresh database, your folders may not appear immediately even if they exist on disk.
+After a fresh database, folders may exist on disk but still not appear in the portal.
 
-That is because folders/files are shown from indexed DB records.
+Why:
+- folders/files are displayed from indexed DB rows
+- `StorageRoot` rows must exist
+- the scan must run
 
-### Required conditions
+### Scheduled Scan
+Celery Beat schedules `scan-storage-roots` every **600 seconds**.
 
-1. `StorageRoot` records must exist
-2. storage scan must run
-
-### Scan job
-
-Celery Beat schedules `scan-storage-roots` every 600 seconds.
-
-### Manual scan if needed
-
+### Manual Scan
 ```bash
 podman-compose exec web python manage.py shell
 ```
 
-Then run something like:
+Then:
 
 ```python
 from storage_index.models import StorageRoot
@@ -752,9 +739,9 @@ for root in StorageRoot.objects.filter(is_active=True):
 
 ---
 
-## 15. Branding / Static Files
+## 17. Branding & Static Files
 
-For auth-page assets like the logo, keep them inside the Django app static path, for example:
+For auth-page assets like the logo, keep them inside an app static path such as:
 
 ```bash
 app/accounts/static/images/fiftytwo_logo.png
@@ -766,59 +753,52 @@ Then run:
 podman-compose exec web python manage.py collectstatic --noinput
 ```
 
-If the browser shows alt text instead of the logo, usually the file exists in source static path but was not collected into `staticfiles` yet.
+If the browser shows alt text instead of the image, usually the file exists in the source path but was not collected into `staticfiles`.
 
 ---
 
-## 16. Common Operational Commands
+## 18. Useful Operational Commands
 
-### Rebuild stack
-
+### Rebuild Stack
 ```bash
 podman-compose up -d --build
 ```
 
-### Check web logs
-
+### Check Web Logs
 ```bash
 podman-compose logs --tail=100 web
 ```
 
-### Check Celery logs
-
+### Check Celery Logs
 ```bash
 podman-compose logs --tail=100 celery
 podman-compose logs --tail=100 celery-beat
 ```
 
-### Check Nginx logs
-
+### Check Nginx Logs
 ```bash
 podman-compose logs --tail=100 nginx
 ```
 
-### Open Django shell
-
+### Open Django Shell
 ```bash
 podman-compose exec web python manage.py shell
 ```
 
-### Collect static manually
-
+### Collect Static Manually
 ```bash
 podman-compose exec web python manage.py collectstatic --noinput
 ```
 
 ---
 
-## 17. Common Troubleshooting
+## 19. Troubleshooting
 
-## 17.1 Login says “Invalid credentials” after rebuild
+### 19.1 Login Says “Invalid credentials” After Rebuild
 
 Possible cause:
-
 - fresh database
-- initial superadmin not created yet
+- initial superadmin not created
 
 Fix:
 
@@ -826,18 +806,15 @@ Fix:
 podman-compose exec web python manage.py create_initial_superadmin
 ```
 
----
-
-## 17.2 OTP is logged as sent but email is not received
+### 19.2 OTP Logged as Sent but Email Not Received
 
 Check:
-
 - `.env` email host/port
 - mailbox credentials
 - Celery worker logs
 - Microsoft 365 SMTP/relay setup
 
-Normal working SMTP submission example:
+Working Microsoft 365 SMTP submission example:
 
 ```env
 EMAIL_HOST=smtp.office365.com
@@ -848,89 +825,72 @@ EMAIL_HOST_PASSWORD=your_password_or_app_password
 DEFAULT_FROM_EMAIL=your_mailbox@example.com
 ```
 
----
-
-## 17.3 Folders exist on disk but do not appear in the portal
+### 19.3 Folders Exist on Disk but Not in Portal
 
 Possible cause:
-
 - fresh DB
-- `StorageRoot` rows missing
+- missing `StorageRoot` rows
 - scan not run yet
 
 Fix:
-
 - ensure storage roots exist
 - trigger manual scan
-- verify Celery Beat and worker are running
+- verify Celery worker and beat are running
 
----
-
-## 17.4 Large file upload fails
+### 19.4 Large File Upload Fails
 
 Check:
-
 - `FILEPORTAL_UPLOAD_MAX_BYTES`
 - Nginx `client_max_body_size`
 - Nginx `client_body_temp_path`
 - free space on temp path
 - Gunicorn timeout
-- Podman container storage size
+- Podman/container storage size
 
-Recommended upload-related settings:
+### 19.5 Podman Storage Fills `/var`
 
-- app limit in `.env`
-- Nginx slightly above app limit
-- Gunicorn timeout aligned with Nginx
+If Podman storage remains under `/var/lib/containers` and `/var` is small, rebuilds and large workloads can fail.
 
----
-
-## 17.5 Podman storage fills `/var`
-
-If `/var` is small and Podman storage lives under `/var/lib/containers`, container rebuilds and large workloads can fail.
-
-Recommended long-term solution:
-
-- move Podman graphroot to `/deployment/containers/storage`
-- keep Nginx temp upload path on `/deployment/nginx_client_temp`
+Recommended long-term fix:
+- move Podman `graphroot` to `/deployment/containers/storage`
+- keep Nginx temp uploads on `/deployment/nginx_client_temp`
 
 ---
 
-## 18. Security Notes
+## 20. Security Notes
 
-This portal already includes several good security controls:
+Current security controls include:
 
 - email-based authentication
 - OTP verification
 - password complexity
 - password history checks
 - password expiry
-- account block / unlock controls
+- account blocking and unlock flow
 - session timeout middleware
 - audit logging
-- protected internal download flow
+- protected downloads via Nginx internal redirect
 
-Before public internet exposure, still review:
-
-- TLS certificate management
+Before public exposure, additionally review:
+- TLS certificate lifecycle
 - reverse proxy hardening
-- SMTP security and sender policy
+- SMTP sender policy
 - antivirus / content scanning if required
-- external rate limiting / WAF
+- rate limiting / WAF
 - off-box log forwarding if required
 - least-privilege container runtime settings
 
 ---
 
-## 19. Recommended Maintenance Routine
+## 21. Maintenance Checklist
 
-Daily / regular checks:
+Regular checks should include:
 
-- verify web, celery, celery-beat, nginx containers are healthy
-- verify OTP email works
+- verify `web`, `celery`, `celery-beat`, and `nginx` are healthy
+- verify OTP email delivery
 - verify storage scans are running
 - review audit logs
-- review disk space on:
+- review free disk space on:
   - `/var`
   - `/deployment`
   - container storage
@@ -938,22 +898,7 @@ Daily / regular checks:
 
 ---
 
-## 20. Final Notes
-
-This portal is database-driven for users, permissions, audit logs, and storage indexing. That means filesystem state alone is not enough after a rebuild or DB reset.
-
-Always remember these dependencies:
-
-- user access depends on DB records
-- folders shown in portal depend on indexed DB rows
-- email/OTP depends on Celery + SMTP config
-- file download depends on Django authorization + Nginx protected path
-
-If you change infrastructure, mail flow, storage paths, or container storage, validate the portal again end to end.
-
----
-
-## 21. Suggested Validation Checklist After Deployment
+## 22. Post-Deployment Validation Checklist
 
 1. open login page
 2. verify logo and static files load
@@ -971,3 +916,18 @@ If you change infrastructure, mail flow, storage paths, or container storage, va
 14. verify password change flow
 15. verify large file upload behavior within configured limit
 
+---
+
+## Final Summary
+
+This portal is **database-driven** for users, permissions, audit trails, and storage indexing.
+
+That means:
+
+- filesystem data alone is not enough after a DB reset
+- user access depends on DB state
+- portal folder visibility depends on indexed records
+- OTP depends on Celery + SMTP
+- downloads depend on Django authorization + Nginx protected paths
+
+If you change infrastructure, mail flow, storage paths, or container storage, validate the full portal workflow again end to end.
