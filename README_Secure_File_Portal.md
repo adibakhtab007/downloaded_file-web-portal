@@ -53,8 +53,8 @@ This README explains both:
 
 The application uses two storage roots:
 
-- `LOCAL_STORAGE_ROOT=/deployment/local`
-- `NAS_STORAGE_ROOT=/deployment/nas`
+- `LOCAL_STORAGE_ROOT=/PATH/local`
+- `NAS_STORAGE_ROOT=/PATH/nas`
 
 These are mounted into the containers and scanned into the database.
 
@@ -668,9 +668,9 @@ Below are the important `.env` values.
 Ensure these host paths exist:
 
 ```bash
-mkdir -p /deployment/local
-mkdir -p /deployment/nas
-mkdir -p /deployment/nginx_client_temp
+mkdir -p /PATH/local
+mkdir -p /PATH/nas
+mkdir -p /PATH/nginx_client_temp
 ```
 
 ## 13.2 Configure `.env`
@@ -682,14 +682,14 @@ Create and populate `.env` with correct values.
 Using Podman Compose:
 
 ```bash
-cd /deployment/Application/fileportal_prod
+cd /PATH/Application/fileportal_prod
 podman-compose up -d --build
 ```
 
 Using Docker Compose:
 
 ```bash
-cd /deployment/Application/fileportal_prod
+cd /PATH/Application/fileportal_prod
 docker compose up -d --build
 ```
 
