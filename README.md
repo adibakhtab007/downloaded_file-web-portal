@@ -295,6 +295,20 @@ Common statuses used in the system:
 6. login is completed
 7. user is routed according to role
 
+<details>
+<summary><strong>📸 View Login Page Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/login_page.png" alt="Audit Log Page" width="900">
+</p>
+
+<p align="center">
+  <em>Login page — central entry point for Admin & Web_users.</em>
+</p>
+</details>
+
 ### 9.2 Security Controls
 
 The portal includes:
@@ -305,6 +319,20 @@ The portal includes:
 - session timeout middleware
 - password expiry enforcement
 - password history checks
+
+<details>
+<summary><strong>📸 View OTP Page Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/otp_page.png" alt="Audit Log Page" width="900">
+</p>
+
+<p align="center">
+  <em>OTP page — central 2FA OTP Security Controls for Admin & Web_users.</em>
+</p>
+</details>
 
 ### 9.3 Expired Password Flow
 
@@ -325,6 +353,20 @@ The portal includes:
 6. account is unlocked
 
 If the security answers fail repeatedly, the account may become `SECURITY_BLOCKED`.
+
+<details>
+<summary><strong>📸 View WEB Account Unlock Flow Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/forgot_password_page.png" alt="Audit Log Page" width="900">
+</p>
+
+<p align="center">
+  <em>Forgot Password page — Unlock Web_users via providing Login email and security questions answer.</em>
+</p>
+</details>
 
 ---
 
@@ -349,6 +391,20 @@ The form includes:
 - admin must approve it
 - until approved, login access is not granted
 
+<details>
+<summary><strong>📸 View Registration Page Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/register_page.png" alt="Audit Log Page" width="900">
+</p>
+
+<p align="center">
+  <em>Registration page — Web_users Registration page to get acces.</em>
+</p>
+</details>
+
 ---
 
 ## 11. Admin Portal Guide
@@ -372,6 +428,20 @@ It also shows summary counts for:
 - admin users
 - folders
 - files
+
+<details>
+<summary><strong>📸 View Dashboard Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/admin_dashboard_page.png" alt="Admin Dashboard Page" width="850">
+</p>
+
+<p align="center">
+  <em>Admin Dashboard — central entry point for portal administrators.</em>
+</p>
+</details>
 
 ### 11.2 Users Page
 
@@ -408,6 +478,20 @@ Purpose:
 - removes folder permissions
 - prevents re-created users from inheriting old access
 
+<details>
+<summary><strong>📸 View Users Page Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/users_page.png" alt="Users Page" width="850">
+</p>
+
+<p align="center">
+  <em>Users page — manage registrations, approvals, status changes, and user actions.</em>
+</p>
+</details>
+
 ### 11.3 Create Admin User
 
 Purpose:
@@ -423,6 +507,20 @@ Flow:
 
 If the email exists in deleted state, the current logic may restore it.
 
+<details>
+<summary><strong>📸 View Create Admin User Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/create_admin_user_page.png" alt="Create Admin User Page" width="850">
+</p>
+
+<p align="center">
+  <em>Create Admin User page — create Super Admin or Admin Read-only accounts.</em>
+</p>
+</details>
+
 ### 11.4 Folders Page
 
 Purpose:
@@ -435,6 +533,20 @@ Purpose:
 > **Important:** This page reads from the **database index**, not directly from disk.
 
 If folders exist on disk but not in the database, they will not appear until a scan updates the DB.
+
+<details>
+<summary><strong>📸 View Folders Page Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/folders_page.png" alt="Folders Page" width="850">
+</p>
+
+<p align="center">
+  <em>Folders page — view indexed folders and manage storage-related operations.</em>
+</p>
+</details>
 
 ### 11.5 Create Folder
 
@@ -450,6 +562,20 @@ Flow:
 
 Current behavior keeps the user on the same page after creation and shows success there.
 
+<details>
+<summary><strong>📸 View Create Folder Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/create_folder_page.png" alt="Create Folder Page" width="850">
+</p>
+
+<p align="center">
+  <em>Create Folder page — create a new folder under a selected storage root.</em>
+</p>
+</details>
+
 ### 11.6 Upload File
 
 Purpose:
@@ -460,6 +586,20 @@ Supported behavior:
 - total upload limit from `.env`
 - client-side size validation popup
 - server-side size validation
+
+<details>
+<summary><strong>📸 View Upload File Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/upload_file_page.png" alt="Upload File Page" width="850">
+</p>
+
+<p align="center">
+  <em>Upload File page — upload one or multiple files into a selected folder.</em>
+</p>
+</details>
 
 #### Upload Limit
 Controlled by:
@@ -489,11 +629,39 @@ Rules:
 - folder must be empty
 - subfolders/files must be removed or moved first
 
+<details>
+<summary><strong>📸 View Delete Folder Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/delete_folder_page.png" alt="Delete Folder Page" width="850">
+</p>
+
+<p align="center">
+  <em>Delete Folder page — remove folders safely based on current portal rules.</em>
+</p>
+</details>
+
 ### 11.8 Delete File
 
 Purpose:
 - delete a file from filesystem
 - mark it inactive in DB
+
+<details>
+<summary><strong>📸 View Delete File Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/delete_files_page.png" alt="Delete File Page" width="850">
+</p>
+
+<p align="center">
+  <em>Delete File page — remove files from storage and mark them inactive in the database.</em>
+</p>
+</details>
 
 ### 11.9 Grant Folder Permissions
 
@@ -511,6 +679,20 @@ The page also supports:
 - permission listing
 - pagination
 
+<details>
+<summary><strong>📸 View Grant Folder Permissions Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/grant_folder_access_page.png" alt="Grant Folder Access Page" width="850">
+</p>
+
+<p align="center">
+  <em>Grant Folder Permissions page — assign folder access to selected users.</em>
+</p>
+</details>
+
 ### 11.10 Revoke Folder Permissions
 
 Purpose:
@@ -522,6 +704,20 @@ Flow:
 3. click `Delete`
 
 Depending on your recursive revoke logic, subtree access may also be removed.
+
+<details>
+<summary><strong>📸 View Revoke Folder Permissions Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/revoke_folder_access_page.png" alt="Revoke Folder Access Page" width="850">
+</p>
+
+<p align="center">
+  <em>Revoke Folder Permissions page — remove existing folder access from users.</em>
+</p>
+</details>
 
 ### 11.11 Audit Logs
 
@@ -538,6 +734,20 @@ Trace ID groups related actions in one user journey, for example:
 - OTP events
 - portal actions
 - logout-related events
+
+<details>
+<summary><strong>📸 View Audit Logs Screenshot</strong></summary>
+
+<br>
+
+<p align="center">
+  <img src="./readme_images/audit_log_page.png" alt="Audit Log Page" width="900">
+</p>
+
+<p align="center">
+  <em>Audit Logs page — review security and operational events with Trace ID tracking.</em>
+</p>
+</details>
 
 ---
 
