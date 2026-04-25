@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secure File Portal</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#222}
+    header{background:#0f172a;color:#fff;padding:14px 24px}
+    nav a{color:#fff;margin-right:15px;text-decoration:none}
+    .container{max-width:1100px;margin:24px auto;padding:0 16px}
+    .card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #e6e6e6;text-align:left}
+    input,select,textarea{width:100%;padding:10px;margin:6px 0 14px;border:1px solid #cbd5e1;border-radius:8px;box-sizing:border-box}
+    button,.btn{background:#2563eb;color:#fff;padding:10px 16px;border:none;border-radius:8px;text-decoration:none;display:inline-block;cursor:pointer}
+    .btn-secondary{background:#475569}
+    .msg{padding:12px;border-radius:8px;margin-bottom:12px}
+    .msg.success{background:#dcfce7}
+    .msg.error{background:#fee2e2}
+    .msg.info{background:#dbeafe}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  </style>
+</head>
+<body>
+{% with current_name=request.resolver_match.url_name %}
+  {% if current_name not in 'login_password register unlock_account otp_verify expired_password_reset unlock_otp' %}
+  <header>
+    <nav>
+      {% if request.user.is_authenticated %}
+        {% if request.user.profile.role == 'WEB_USER' %}
+          <a href="{% url 'accounts:post_login_router' %}">Home</a>
+          <a href="{% url 'portal_user:profile' %}">My Profile</a>
+          <a href="{% url 'accounts:logout' %}">Logout</a>
+        {% elif request.user.profile.role == 'SUPER_ADMIN' or request.user.profile.role == 'ADMIN_READONLY' %}
+          <a href="{% url 'portal_admin:dashboard' %}">Admin Portal</a>
+          <a href="{% url 'portal_user:profile' %}">My Profile</a>
+          <a href="{% url 'accounts:logout' %}">Logout</a>
+        {% else %}
+          <a href="{% url 'accounts:logout' %}">Logout</a>
+        {% endif %}
+      {% endif %}
+    </nav>
+  </header>
+  {% endif %}
+{% endwith %}
+
+<div class="container">
+  {% with current_name=request.resolver_match.url_name %}
+    {% if current_name not in 'login_password register unlock_account otp_verify expired_password_reset unlock_otp' %}
+      {% for message in messages %}
+        <div class="msg {{ message.tags|default:'info' }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <style>
+    .revoke-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      background: #475569;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+    }
+
+    .revoke-title-wrap h2 {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .revoke-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .revoke-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .revoke-section-title {
+      margin: 0 0 14px 0;
+      color: #0f172a;
+      font-size: 17px;
+    }
+
+    .revoke-info {
+      margin: 0;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 12px;
+      color: #9a3412;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .revoke-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .revoke-table th {
+      background: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .revoke-table th,
+    .revoke-table td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .user-cell {
+      font-weight: 700;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .folder-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #166534;
+      white-space: nowrap;
+    }
+
+    .path-code {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 13px;
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-word;
+    }
+
+    .type-pill {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #dbeafe;
+      color: #1d4ed8;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .compact-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .empty-row {
+      text-align: center;
+      color: #64748b;
+      padding: 18px 10px;
+    }
+
+    .pagination-box {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-indicator {
+      font-size: 14px;
+      color: #475569;
+      font-weight: 600;
+    }
+  </style>
+
+    <div class="revoke-header">
+      <div class="revoke-title-wrap">
+        <h2>Revoke Folder Permissions</h2>
+        <p class="revoke-subtitle">
+          Review existing folder access and remove user permissions directly from the current permission list.
+        </p>
+      </div>
+
+      <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:dashboard' %}">Back</a>
+    </div>
+
+  <div class="revoke-section">
+    <h3 class="revoke-section-title">Current Permissions</h3>
+    <p class="revoke-info">
+      Deleting a permission row removes that user's access from the selected folder path. If the selected row is a semi-parent path, all inherited subtree access may also be revoked.
+    </p>
+  </div>
+
+  <table class="revoke-table">
+    <tr>
+      <th>User</th>
+      <th>Folder</th>
+      <th>Path</th>
+      <th>Type</th>
+      <th>Revoke Permission</th>
+    </tr>
+
+    {% for perm in current_permissions %}
+    <tr>
+      <td class="user-cell">{{ perm.user.email }}</td>
+      <td><span class="folder-badge">{{ perm.folder.display_name }}</span></td>
+      <td>
+        <span class="path-code">
+          {% if perm.folder.relative_path == '.' %}
+            {{ perm.folder.storage_root.storage_type }}
+          {% else %}
+            {{ perm.folder.storage_root.storage_type }}/{{ perm.folder.relative_path }}
+          {% endif %}
+        </span>
+      </td>
+      <td><span class="type-pill">{{ perm.permission_type }}</span></td>
+      <td>
+        <form method="post" action="{% url 'portal_admin:revoke_permission_row' perm.id %}" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="compact-btn btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" class="empty-row">No permissions found.</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div class="pagination-box">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-secondary compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span class="page-indicator">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a class="btn compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

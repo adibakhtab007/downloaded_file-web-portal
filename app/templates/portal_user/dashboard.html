@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <style>
+    .portal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .portal-title-wrap h2 {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .portal-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .folder-summary {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .folder-summary-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+    }
+
+    .folder-summary-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+
+    .folder-summary-note {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .folders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .folders-table th {
+      background: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .folders-table th,
+    .folders-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .folder-name {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .path-code {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 13px;
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-word;
+    }
+
+    .open-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .open-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .empty-row {
+      text-align: center;
+      color: #64748b;
+      padding: 18px 10px;
+    }
+  </style>
+
+  <div class="portal-header">
+    <div class="portal-title-wrap">
+      <h2>My Folders</h2>
+      <p class="portal-subtitle">
+        Browse the folders assigned to your account and open the locations you have permission to access.
+      </p>
+    </div>
+  </div>
+
+  <div class="folder-summary">
+    <div class="folder-summary-label">Assigned Folders</div>
+    <div class="folder-summary-value">{{ folders|length }}</div>
+    <div class="folder-summary-note">Folders currently visible to your account</div>
+  </div>
+
+  <table class="folders-table">
+    <tr>
+      <th>Name</th>
+      <th>Path</th>
+      <th>Action</th>
+    </tr>
+
+    {% for folder in folders %}
+    <tr>
+      <td class="folder-name">{{ folder.display_name }}</td>
+      <td><span class="path-code">{{ folder.relative_path }}</span></td>
+      <td>
+        <a class="open-btn" href="{% url 'portal_user:folder_detail' folder.id %}">Open</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3" class="empty-row">No assigned folders.</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  body {
+    background: #212121;
+  }
+
+  .container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .auth-shell {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+
+  .auth-card {
+    width: 420px;
+    max-width: 100%;
+    padding: 40px 30px;
+    background: #dde1e7;
+    border-radius: 18px;
+    box-shadow:
+      -3px -3px 7px #ffffff73,
+      2px 2px 5px rgba(94,104,121,0.288);
+  }
+
+  .auth-logo-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .auth-logo {
+    max-width: 180px;
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .auth-title {
+    font-size: 33px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #595959;
+    text-align: center;
+  }
+
+  .auth-subtitle {
+    text-align: center;
+    color: #666666;
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  .field-block {
+    margin-bottom: 16px;
+  }
+
+  .field-block label.top-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #595959;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .field-block input,
+  .field-block select {
+    height: 50px;
+    width: 100%;
+    padding: 0 16px;
+    outline: none;
+    border: none;
+    font-size: 16px;
+    background: #dde1e7;
+    color: #595959;
+    border-radius: 25px;
+    box-shadow:
+      inset 2px 2px 5px #BABECC,
+      inset -5px -5px 10px #ffffff73;
+    margin: 0;
+  }
+
+  .field-block input:focus,
+  .field-block select:focus {
+    box-shadow:
+      inset 1px 1px 2px #BABECC,
+      inset -1px -1px 2px #ffffff73;
+  }
+
+  .auth-button {
+    margin: 15px 0;
+    width: 100%;
+    height: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    background: #dde1e7;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: #595959;
+    box-shadow:
+      2px 2px 5px #BABECC,
+      -5px -5px 10px #ffffff73;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .auth-button:focus,
+  .auth-button:hover {
+    color: #3498db;
+  }
+
+  .auth-links {
+    margin-top: 10px;
+    color: #595959;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .auth-links a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+
+  .field-errors,
+  .non-field-errors {
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .field-errors {
+    margin-top: 6px;
+    margin-left: 4px;
+  }
+
+  .non-field-errors {
+    margin-bottom: 14px;
+  }
+
+  .help-text {
+    margin-top: 6px;
+    margin-left: 4px;
+    color: #666666;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+</style>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-logo-wrap">
+      <img src="{% static 'images/fiftytwo_logo.png' %}" alt="fiftytwo logo" class="auth-logo">
+    </div>
+
+    <div class="auth-title">Register</div>
+    <div class="auth-subtitle">Create your web portal account</div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="non-field-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      {% for field in form %}
+        <div class="field-block">
+          <label class="top-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <div class="help-text">{{ field.help_text }}</div>
+          {% endif %}
+          {% if field.errors %}
+            <div class="field-errors">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button class="auth-button" type="submit">Register</button>
+
+      <div class="auth-links">
+        Already a member?
+        <a href="{% url 'accounts:login_password' %}">login now</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

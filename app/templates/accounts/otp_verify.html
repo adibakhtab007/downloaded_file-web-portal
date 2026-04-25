@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  body {
+    background: #212121;
+  }
+
+  .container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .auth-shell {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+
+  .auth-card {
+    width: 330px;
+    padding: 40px 30px;
+    background: #dde1e7;
+    border-radius: 18px;
+    box-shadow:
+      -3px -3px 7px #ffffff73,
+      2px 2px 5px rgba(94,104,121,0.288);
+  }
+
+  .auth-title {
+    font-size: 33px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #595959;
+    text-align: center;
+  }
+
+  .auth-subtitle {
+    text-align: center;
+    color: #666666;
+    font-size: 15px;
+    margin-bottom: 26px;
+    line-height: 1.5;
+  }
+
+  .field {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .field .input {
+    height: 100%;
+    width: 100%;
+    padding-left: 45px;
+    padding-right: 14px;
+    outline: none;
+    border: none;
+    font-size: 18px;
+    background: #dde1e7;
+    color: #595959;
+    border-radius: 25px;
+    box-shadow:
+      inset 2px 2px 5px #BABECC,
+      inset -5px -5px 10px #ffffff73;
+    margin: 0;
+  }
+
+  .field .input:focus {
+    box-shadow:
+      inset 1px 1px 2px #BABECC,
+      inset -1px -1px 2px #ffffff73;
+  }
+
+  .field .span {
+    position: absolute;
+    color: #595959;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+  }
+
+  .field .label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 45px;
+    pointer-events: none;
+    color: #666666;
+    font-size: 16px;
+    transition: opacity .15s ease;
+  }
+
+  .field .input:focus + .span + .label,
+  .field .input:not(:placeholder-shown) + .span + .label {
+    opacity: 0;
+  }
+
+  .auth-button {
+    margin: 15px 0 10px 0;
+    width: 100%;
+    height: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    background: #dde1e7;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: #595959;
+    box-shadow:
+      2px 2px 5px #BABECC,
+      -5px -5px 10px #ffffff73;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .auth-button:focus,
+  .auth-button:hover {
+    color: #3498db;
+  }
+
+  .auth-links {
+    margin-top: 14px;
+    text-align: center;
+    color: #595959;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .auth-links a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+
+  .field-errors,
+  .non-field-errors {
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .non-field-errors {
+    margin-bottom: 14px;
+  }
+
+  .field-errors {
+    margin: -10px 0 12px 4px;
+  }
+
+  .hidden-label {
+    display: none;
+  }
+</style>
+
+<div class="auth-shell">
+  <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+    {% for message in messages %}
+      <div class="msg {{ message.tags|default:'info' }}" style="margin:0; min-width:260px; max-width:420px; text-align:center;">
+        {{ message }}
+      </div>
+    {% endfor %}
+
+    <div class="auth-card">
+    <div class="auth-title">OTP</div>
+    <div class="auth-subtitle">Enter the 6-digit verification code sent to your email</div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="non-field-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <label class="hidden-label" for="{{ form.otp.id_for_label }}">OTP</label>
+      <div class="field">
+        <input
+          required
+          type="text"
+          name="{{ form.otp.html_name }}"
+          id="{{ form.otp.id_for_label }}"
+          value="{% if form.otp.value %}{{ form.otp.value }}{% endif %}"
+          class="input"
+          placeholder=" "
+          maxlength="6"
+          inputmode="numeric"
+          autocomplete="one-time-code">
+        <span class="span">
+          <svg xml:space="preserve" viewBox="0 0 24 24" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#595959" d="M17 8h-1V6a4 4 0 10-8 0v2H7a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2v-8a2 2 0 00-2-2zm-6 7.73V17a1 1 0 002 0v-1.27a2 2 0 10-2 0zM10 8V6a2 2 0 114 0v2h-4z"/>
+          </svg>
+        </span>
+        <label class="label" for="{{ form.otp.id_for_label }}">Enter OTP</label>
+      </div>
+      {% if form.otp.errors %}
+        <div class="field-errors">{{ form.otp.errors }}</div>
+      {% endif %}
+
+      <button class="auth-button" type="submit">Verify OTP</button>
+
+      <div class="auth-links">
+        <a href="{% url 'accounts:login_password' %}">Back to login</a>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

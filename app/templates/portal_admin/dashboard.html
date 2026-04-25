@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+  <style>
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .dashboard-title {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .dashboard-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .dashboard-nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .nav-card {
+      display: block;
+      text-decoration: none;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      color: inherit;
+    }
+
+    .nav-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10);
+      border-color: #bfdbfe;
+    }
+
+    .nav-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .nav-card-desc {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .stats-title {
+      margin: 0 0 14px 0;
+      color: #0f172a;
+      font-size: 18px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+
+    .stat-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .dashboard-section {
+      margin-top: 10px;
+    }
+  </style>
+
+  <div class="dashboard-header">
+    <div>
+      <h2 class="dashboard-title">Admin Dashboard</h2>
+      <p class="dashboard-subtitle">Central management area for users, folders, permissions, and audit activity.</p>
+    </div>
+  </div>
+
+  <div class="dashboard-nav">
+    <a class="nav-card" href="{% url 'portal_admin:user_list' %}">
+      <div class="nav-card-title">Users</div>
+      <div class="nav-card-desc">Manage user lifecycle, approvals, blocks, password reset access, and deletion.</div>
+    </a>
+
+    <a class="nav-card" href="{% url 'portal_admin:folder_list' %}">
+      <div class="nav-card-title">Folders</div>
+      <div class="nav-card-desc">Create folders, upload files, and manage storage structure from one place.</div>
+    </a>
+
+    <a class="nav-card" href="{% url 'portal_admin:permissions_view' %}">
+      <div class="nav-card-title">Grant Folder Permissions</div>
+      <div class="nav-card-desc">Assign folder access to users with path-based folder visibility.</div>
+    </a>
+
+    <a class="nav-card" href="{% url 'portal_admin:revoke_folder_permission' %}">
+      <div class="nav-card-title">Revoke Folder Permission</div>
+      <div class="nav-card-desc">Review and remove user folder access directly from current permission rows.</div>
+    </a>
+
+    <a class="nav-card" href="{% url 'portal_admin:audit_logs' %}">
+      <div class="nav-card-title">Audit Logs</div>
+      <div class="nav-card-desc">Search and review security events, user actions, trace IDs, and timelines.</div>
+    </a>
+  </div>
+
+  <div class="dashboard-section">
+    <h3 class="stats-title">Portal Overview</h3>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Pending Users</div>
+        <div class="stat-value">{{ pending_count }}</div>
+        <div class="stat-hint">Waiting for admin decision</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Web Users</div>
+        <div class="stat-value">{{ web_users_count }}</div>
+        <div class="stat-hint">Registered portal users</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Admin Users</div>
+        <div class="stat-value">{{ admin_users_count }}</div>
+        <div class="stat-hint">Super Admin + Admin Readonly</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Folders</div>
+        <div class="stat-value">{{ folder_count }}</div>
+        <div class="stat-hint">Active indexed folders</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Files</div>
+        <div class="stat-value">{{ file_count }}</div>
+        <div class="stat-hint">Active indexed files</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

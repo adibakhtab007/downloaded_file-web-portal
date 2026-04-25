@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <style>
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .profile-title-wrap h2 {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .profile-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .profile-box {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .profile-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+    }
+
+    .profile-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .profile-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .profile-section h3 {
+      margin: 0 0 14px 0;
+      color: #0f172a;
+      font-size: 17px;
+    }
+
+    .security-list {
+      margin: 0;
+      padding-left: 20px;
+      color: #334155;
+    }
+
+    .security-list li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .profile-btn {
+      min-height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .profile-btn:hover {
+      background: #1d4ed8;
+    }
+  </style>
+
+  <div class="profile-header">
+    <div class="profile-title-wrap">
+      <h2>My Profile</h2>
+      <p class="profile-subtitle">
+        Review your account details, password expiry information, and security question setup.
+      </p>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <div class="profile-box">
+      <div class="profile-label">Full Name</div>
+      <div class="profile-value">{{ request.user.profile.full_name }}</div>
+    </div>
+
+    <div class="profile-box">
+      <div class="profile-label">Email</div>
+      <div class="profile-value">{{ request.user.email }}</div>
+    </div>
+
+    <div class="profile-box">
+      <div class="profile-label">Password Expires</div>
+      <div class="profile-value">{{ request.user.profile.password_expires_at }}</div>
+    </div>
+  </div>
+
+  {% if request.user.profile.role == 'WEB_USER' %}
+    <div class="profile-section">
+      <h3>Security Questions</h3>
+      <ul class="security-list">
+        {% for item in questions %}
+          <li>{{ item.question.question_text }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="profile-actions">
+    <a class="profile-btn" href="{% url 'portal_user:change_password' %}">Change Password</a>
+  </div>
+</div>
+{% endblock %}

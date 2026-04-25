@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <style>
+    .perm-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .perm-title-wrap h2 {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .perm-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .perm-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .perm-section-title {
+      margin: 0 0 14px 0;
+      color: #0f172a;
+      font-size: 17px;
+    }
+
+    .perm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .perm-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .perm-field select,
+    .perm-field input[type="text"] {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-sizing: border-box;
+      background: #fff;
+      color: #0f172a;
+      font-size: 14px;
+    }
+
+    .perm-field select:focus,
+    .perm-field input[type="text"]:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+    }
+
+    .perm-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .compact-btn {
+      min-height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .perm-info {
+      margin: 14px 0 0 0;
+      padding: 12px 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .perm-message {
+      margin: 0 0 18px 0;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 12px;
+      color: #9a3412;
+      font-size: 14px;
+    }
+
+    .perm-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .perm-table th {
+      background: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .perm-table th,
+    .perm-table td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .user-cell {
+      font-weight: 700;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .folder-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #166534;
+      white-space: nowrap;
+    }
+
+    .path-code {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 13px;
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-word;
+    }
+
+    .type-pill {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #dbeafe;
+      color: #1d4ed8;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .empty-row {
+      text-align: center;
+      color: #64748b;
+      padding: 18px 10px;
+    }
+
+    @media (max-width: 900px) {
+      .perm-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="perm-header">
+    <div class="perm-title-wrap">
+      <h2>Grant Folder Permissions</h2>
+      <p class="perm-subtitle">
+        Assign folder access to users, search existing permissions by email, and review the currently granted folder paths.
+      </p>
+    </div>
+
+    <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:dashboard' %}">Back</a>
+  </div>
+
+  <div class="perm-section">
+    <h3 class="perm-section-title">Grant Access</h3>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="perm-grid">
+        <div class="perm-field">
+          <label for="{{ form.folder.id_for_label }}">Folder</label>
+          {{ form.folder }}
+        </div>
+
+        <div class="perm-field">
+          <label for="{{ form.user.id_for_label }}">User</label>
+          {{ form.user }}
+        </div>
+      </div>
+
+      <div class="perm-actions">
+        <button type="submit" class="btn btn-success compact-btn">Grant Read Access</button>
+      </div>
+
+      <div class="perm-info">
+        Select a folder path and a user, then grant read access. If a parent folder is granted, inherited child access may also apply based on your current portal logic.
+      </div>
+    </form>
+  </div>
+
+  <div class="perm-section">
+    <h3 class="perm-section-title">Search by Email</h3>
+
+    <form method="get">
+      <div class="perm-grid" style="grid-template-columns: minmax(280px, 420px) auto;">
+        <div class="perm-field">
+          <label for="email">User Email</label>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            value="{{ search_email }}"
+            placeholder="Search by user email">
+        </div>
+
+        <div class="perm-actions" style="margin-top: 30px;">
+          <button type="submit" class="btn compact-btn">Search</button>
+          <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:permissions_view' %}">Reset</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% if search_message %}
+    <div class="perm-message">{{ search_message }}</div>
+  {% endif %}
+
+  <div class="perm-section">
+    <h3 class="perm-section-title">Current Permissions</h3>
+
+    <table class="perm-table">
+      <tr>
+        <th>User</th>
+        <th>Folder</th>
+        <th>Path</th>
+        <th>Type</th>
+      </tr>
+
+      {% for item in permissions %}
+      <tr>
+        <td class="user-cell">{{ item.user.email }}</td>
+        <td><span class="folder-badge">{{ item.folder.display_name }}</span></td>
+        <td>
+          <span class="path-code">
+            {% if item.folder.relative_path == '.' %}
+              {{ item.folder.storage_root.storage_type }}
+            {% else %}
+              {{ item.folder.storage_root.storage_type }}/{{ item.folder.relative_path }}
+            {% endif %}
+          </span>
+        </td>
+        <td><span class="type-pill">{{ item.permission_type }}</span></td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="empty-row">No permissions found.</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div style="margin-top:18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      {% if page_obj.has_previous %}
+        <a class="btn btn-secondary compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+
+      <span style="font-size:14px; color:#475569; font-weight:600;">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+        <a class="btn compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

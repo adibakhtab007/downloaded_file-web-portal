@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>Pending Users</h2>
+  <table>
+    <tr>
+      <th>Email</th>
+      <th>Full Name</th>
+      <th>Action</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.email }}</td>
+      <td>{{ user.profile.full_name }}</td>
+      <td>
+        <a class="btn" href="{% url 'portal_admin:approve_user' user.id %}">Approve</a>
+        <a class="btn btn-secondary" href="{% url 'portal_admin:reject_user' user.id %}">Reject</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No pending users.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

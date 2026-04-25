@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <style>
+    .user-form-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .user-form-header {
+      margin-bottom: 22px;
+    }
+
+    .user-form-title {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .user-form-subtitle {
+      margin: 8px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .user-form-box {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .user-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .user-form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .user-form-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .user-form-box input,
+    .user-form-box select,
+    .user-form-box textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-sizing: border-box;
+      background: #fff;
+      color: #0f172a;
+      font-size: 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      margin: 0;
+    }
+
+    .user-form-box input:focus,
+    .user-form-box select:focus,
+    .user-form-box textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+    }
+
+    .user-form-help {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .user-form-error {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #b91c1c;
+      line-height: 1.45;
+    }
+
+    .user-form-note {
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .user-form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .user-btn {
+      min-height: 42px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      border: none;
+      cursor: pointer;
+    }
+
+    .user-btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .user-btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .user-btn-secondary {
+      background: #475569;
+      color: #fff;
+    }
+
+    .user-btn-secondary:hover {
+      background: #334155;
+    }
+
+    @media (max-width: 720px) {
+      .user-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .user-form-group.full-width {
+        grid-column: auto;
+      }
+    }
+  </style>
+
+  <div class="user-form-wrap">
+    <div class="user-form-header">
+      <h2 class="user-form-title">{{ title }}</h2>
+      <p class="user-form-subtitle">
+        Update your account password securely. Complete all required fields and confirm the OTP sent to your email.
+      </p>
+    </div>
+
+    <form method="post" class="user-form-box" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="user-form-error" style="margin-bottom:16px;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div class="user-form-grid">
+        {% for field in form %}
+          <div class="user-form-group {% if field.name == 'otp' %}full-width{% endif %}">
+            <label class="user-form-label" for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <div class="user-form-help">{{ field.help_text }}</div>
+            {% endif %}
+
+            {% if field.errors %}
+              <div class="user-form-error">{{ field.errors }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if title == 'Change Password' %}
+        <div class="user-form-note">
+          Use a strong new password that you have not used recently. After changing the password, you will be asked to log in again.
+        </div>
+      {% elif title == 'Forced Password Reset' %}
+        <div class="user-form-note">
+          Your account requires a password update before you can continue. Set a new secure password to proceed.
+        </div>
+      {% endif %}
+
+      <div class="user-form-actions">
+        <button type="submit" class="user-btn user-btn-primary">Submit</button>
+        <a href="javascript:history.back()" class="user-btn user-btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

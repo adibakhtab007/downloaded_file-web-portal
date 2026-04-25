@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    command: /app/scripts/start-web.sh
+    volumes:
+      - static_volume:/app/staticfiles:z
+      - media_volume:/app/media:z
+      - /deployment/local:/deployment/local:z
+      - /deployment/nas:/deployment/nas:z
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    command: /app/scripts/start-celery.sh
+    volumes:
+      - /deployment/local:/deployment/local:z
+      - /deployment/nas:/deployment/nas:z
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    command: /app/scripts/start-celery-beat.sh
+    volumes:
+      - /deployment/local:/deployment/local:z
+      - /deployment/nas:/deployment/nas:z
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - ./nginx/certs:/etc/nginx/certs:ro,z
+      - static_volume:/app/staticfiles:ro,z
+      - media_volume:/app/media:ro,z
+      - /deployment/local:/deployment/local:ro,z
+      - /deployment/nas:/deployment/nas:ro,z
+      - /deployment/nginx_client_temp:/deployment/nginx_client_temp:z
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

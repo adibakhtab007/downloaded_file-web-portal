@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+  <style>
+    .admin-form-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .admin-form-header {
+      margin-bottom: 22px;
+    }
+
+    .admin-form-title {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .admin-form-subtitle {
+      margin: 8px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .admin-form-box {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .admin-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 18px;
+    }
+
+    .admin-form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .admin-form-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .admin-form-help {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .admin-form-error {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #b91c1c;
+      line-height: 1.45;
+    }
+
+    .admin-form-box input,
+    .admin-form-box select,
+    .admin-form-box textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-sizing: border-box;
+      background: #fff;
+      color: #0f172a;
+      font-size: 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .admin-form-box textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .admin-form-box input:focus,
+    .admin-form-box select:focus,
+    .admin-form-box textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+    }
+
+    .admin-form-box input[type="file"] {
+      padding: 8px;
+      min-height: 44px;
+    }
+
+    .admin-form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .admin-btn {
+      min-height: 42px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      border: none;
+      cursor: pointer;
+    }
+
+    .admin-btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .admin-btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .admin-btn-secondary {
+      background: #475569;
+      color: #fff;
+    }
+
+    .admin-btn-secondary:hover {
+      background: #334155;
+    }
+
+    .upload-limit-note {
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 12px;
+      color: #9a3412;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .upload-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    
+    .upload-modal-box {
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+    
+    .upload-modal-title {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      color: #0f172a;
+    }
+    
+    .upload-modal-text {
+      margin: 0 0 18px 0;
+      color: #475569;
+      line-height: 1.6;
+    }
+    
+    .upload-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .form-wide-note {
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .admin-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-form-group.full-width {
+        grid-column: auto;
+      }
+    }
+  </style>
+
+  <div class="admin-form-wrap">
+    <div class="admin-form-header">
+      <h2 class="admin-form-title">{{ title }}</h2>
+      <p class="admin-form-subtitle">
+        Complete the form below and save the changes. Please review the entered values carefully before submitting.
+      </p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="admin-form-box" id="{% if title == 'Upload File' %}upload-form{% endif %}">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="admin-form-error" style="margin-bottom: 16px;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div class="admin-form-grid">
+        {% for field in form %}
+          <div class="admin-form-group {% if field.field.widget.input_type == 'textarea' or field.name == 'relative_path' or field.name == 'value' %}full-width{% endif %}">
+            <label class="admin-form-label" for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <div class="admin-form-help">{{ field.help_text }}</div>
+            {% endif %}
+
+            {% if field.errors %}
+              <div class="admin-form-error">{{ field.errors }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if title == 'Create Admin User' %}
+        <div class="form-wide-note">
+          This form creates a privileged portal account. Make sure the email address, role, and password are correct before saving.
+        </div>
+      {% endif %}
+      
+      {% if title == 'Upload File' %}
+        <div class="upload-limit-note">
+          You can upload multiple files at once, but the total upload size must stay under
+          {{ upload_max_bytes|filesizeformat }}.
+        </div>
+      {% endif %}
+
+      <div class="admin-form-actions">
+        <button type="submit" class="admin-btn admin-btn-primary">
+          {% if title == 'Create Admin User' %}
+            Create
+          {% elif title == 'Create Folder' %}
+            Create
+          {% elif title == 'Upload File' %}
+            Upload
+          {% elif title == 'Delete Folder' %}
+            Delete Folder
+          {% elif title == 'Delete File' %}
+            Delete File
+          {% else %}
+            Save
+          {% endif %}
+        </button>
+	<a href="javascript:history.back()" class="admin-btn admin-btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if title == 'Upload File' %}
+<div id="upload-limit-modal" class="upload-modal-overlay">
+  <div class="upload-modal-box">
+    <h3 class="upload-modal-title">Upload limit exceeded</h3>
+    <p class="upload-modal-text" id="upload-limit-message">
+      You've selected more than the allowed upload size. Please reduce your selection and try again.
+    </p>
+    <div class="upload-modal-actions">
+      <button type="button" class="admin-btn admin-btn-secondary" onclick="closeUploadLimitModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const form = document.getElementById('upload-form');
+    if (!form) return;
+
+    const fileInput = form.querySelector('input[type="file"][name="upload_file"]');
+    if (!fileInput) return;
+
+    const maxBytes = Number('{{ upload_max_bytes|default:0 }}');
+    const modal = document.getElementById('upload-limit-modal');
+    const msg = document.getElementById('upload-limit-message');
+
+    function formatGiB(bytes) {
+      return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    }
+
+    function totalSelectedBytes(files) {
+      let total = 0;
+      for (const f of files) {
+        total += f.size;
+      }
+      return total;
+    }
+
+    function showUploadLimitModal(totalBytes) {
+      msg.textContent =
+        'You have selected ' + formatGiB(totalBytes) +
+        ' for upload. Please keep your total upload size under ' +
+        formatGiB(maxBytes) + '.';
+      modal.style.display = 'flex';
+    }
+
+    window.closeUploadLimitModal = function () {
+      modal.style.display = 'none';
+    };
+
+    window.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        closeUploadLimitModal();
+      }
+    });
+
+    fileInput.addEventListener('change', function () {
+      const total = totalSelectedBytes(fileInput.files);
+      if (total > maxBytes) {
+        showUploadLimitModal(total);
+      }
+    });
+
+    form.addEventListener('submit', function (event) {
+      const total = totalSelectedBytes(fileInput.files);
+      if (total > maxBytes) {
+        event.preventDefault();
+        showUploadLimitModal(total);
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

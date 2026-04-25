@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+  <h2>{{ folder.display_name }}</h2>
+
+  {% if child_folders %}
+    <h3>Folders</h3>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Path</th>
+        <th>Action</th>
+      </tr>
+      {% for child in child_folders %}
+      <tr>
+        <td>{{ child.display_name }}</td>
+        <td>{{ child.relative_path }}</td>
+        <td>
+          <a class="btn" href="{% url 'portal_user:folder_detail' child.id %}">Open</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  <h3>Files</h3>
+  <table>
+    <tr>
+      <th>File</th>
+      <th>Size</th>
+      <th>Action</th>
+    </tr>
+    {% for file in files %}
+    <tr>
+      <td>{{ file.file_name }}</td>
+      <td>{{ file.size_bytes }}</td>
+      <td>
+        <a class="btn" href="{% url 'portal_user:download_file' file.id %}">Download</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">No files.</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

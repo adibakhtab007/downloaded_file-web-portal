@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+  <style>
+    .users-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }    
+
+    .users-title {
+      margin: 0;
+    }
+  
+    .filter-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+  
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 220px 320px max-content;
+      gap: 14px;
+      align-items: end;
+    }
+  
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      white-space: nowrap;
+    }
+  
+    .filter-actions .compact-btn {
+      height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 8px;
+    }
+  
+    .compact-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 1.2;
+      border-radius: 8px;
+      min-width: auto;
+      white-space: nowrap;
+    }
+  
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+  
+    .btn-warning {
+      background: #d97706;
+      color: #fff;
+    }
+  
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+  
+    .btn-dark {
+      background: #334155;
+      color: #fff;
+    }
+  
+    .status-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+  
+    .status-approved { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-blocked { background: #fee2e2; color: #991b1b; }
+    .status-security { background: #fde68a; color: #92400e; }
+    .status-expired { background: #fce7f3; color: #9d174d; }
+    .status-disabled { background: #e5e7eb; color: #374151; }
+    .status-rejected { background: #fee2e2; color: #b91c1c; }
+    .status-deleted { background: #e2e8f0; color: #475569; }
+  
+    .role-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+  
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+  
+    .users-table th {
+      background: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+    }
+  
+    .users-table th,
+    .users-table td {
+      padding: 14px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
+    }
+  
+    .action-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-title {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      color: #0f172a;
+    }
+
+    .modal-text {
+      margin: 0 0 18px 0;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .email-cell {
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-word;
+    }
+  
+    .name-cell {
+      color: #111827;
+    }
+  
+    @media (max-width: 900px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+  
+      .users-table th,
+      .users-table td {
+        font-size: 14px;
+      }
+    }
+  </style>
+
+  <div class="users-toolbar">
+    <h2 class="users-title">Users</h2>
+
+    <div class="header-actions">
+
+      {% if request.user.profile.role == 'SUPER_ADMIN' %}
+        <a class="btn compact-btn" href="{% url 'portal_admin:create_admin_user' %}">Create Admin User</a>
+      {% endif %}
+
+      <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:dashboard' %}">Back</a>
+    </div>
+  </div>
+
+
+  <form method="get" class="filter-box">
+    <div class="filter-grid">
+      <div>
+        <label for="status" style="display:block; margin-bottom:6px;"><strong>Status</strong></label>
+        <select name="status" id="status" style="width:100%; height:40px; box-sizing:border-box;">
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="email" style="display:block; margin-bottom:6px;"><strong>Email Search</strong></label>
+        <input type="text" name="email" id="email" value="{{ email_query }}" placeholder="Search by email"
+               style="width:100%; height:40px; box-sizing:border-box;">
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="btn compact-btn">Filter</button>
+        <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:user_list' %}">Reset</a>
+      </div>
+    </div>
+  </form>
+
+  <table class="users-table">
+    <tr>
+      <th>Email</th>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+
+    {% for user in users %}
+    <tr>
+      <td class="email-cell">{{ user.email }}</td>
+      <td class="name-cell">{{ user.profile.full_name }}</td>
+      <td>
+        <span class="role-badge">{{ user.profile.role }}</span>
+      </td>
+      <td>
+        {% if user.profile.account_status == 'APPROVED' %}
+          <span class="status-badge status-approved">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'PENDING_APPROVAL' %}
+          <span class="status-badge status-pending">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'BLOCKED' %}
+          <span class="status-badge status-blocked">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'SECURITY_BLOCKED' %}
+          <span class="status-badge status-security">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'DISABLED_PASSWORD_EXPIRED' %}
+          <span class="status-badge status-expired">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'DISABLED_ADMIN' %}
+          <span class="status-badge status-disabled">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'REJECTED' %}
+          <span class="status-badge status-rejected">{{ user.profile.account_status }}</span>
+        {% elif user.profile.account_status == 'deleted' %}
+          <span class="status-badge status-deleted">DELETED</span>
+        {% else %}
+          <span class="status-badge status-disabled">{{ user.profile.account_status }}</span>
+        {% endif %}
+      </td>
+      <td>
+        <div class="action-stack">
+          {% if request.user.profile.role == 'SUPER_ADMIN' or user.profile.role != 'SUPER_ADMIN' %}
+
+            {% if user.profile.account_status == 'PENDING_APPROVAL' %}
+              <a class="btn btn-success compact-btn" href="{% url 'portal_admin:approve_user_row' user.id %}">Approved</a>
+              <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:reject_user_row' user.id %}">Reject</a>
+
+            {% elif user.profile.account_status == 'APPROVED' %}
+              <a class="btn btn-warning compact-btn" href="{% url 'portal_admin:disable_user_row' user.id %}">Disabled</a>
+              <a class="btn compact-btn" href="{% url 'portal_admin:enable_with_temp_password' user.id %}">Temp Password</a>
+              {% if user.profile.role == 'WEB_USER' %}
+                <button
+                  type="button"
+                  class="btn btn-danger compact-btn"
+                  onclick="openDeleteModal('{{ user.id }}', '{{ user.email|escapejs }}')">
+                  Delete
+                </button>
+              {% else %}
+                <a class="btn btn-danger compact-btn" href="{% url 'portal_admin:delete_user_row' user.id %}">Delete</a>
+              {% endif %}
+
+            {% elif user.profile.account_status == 'BLOCKED' %}
+              <a class="btn btn-success compact-btn" href="{% url 'portal_admin:unblock_user' user.id %}">Unblock</a>
+              <a class="btn compact-btn" href="{% url 'portal_admin:enable_with_temp_password' user.id %}">Temp Password</a>
+
+            {% elif user.profile.account_status == 'SECURITY_BLOCKED' %}
+              <a class="btn btn-success compact-btn" href="{% url 'portal_admin:unblock_user' user.id %}">Unblock</a>
+              <a class="btn compact-btn" href="{% url 'portal_admin:enable_with_temp_password' user.id %}">Temp Password</a>
+
+            {% elif user.profile.account_status == 'DISABLED_PASSWORD_EXPIRED' %}
+              <a class="btn compact-btn" href="{% url 'portal_admin:enable_with_temp_password' user.id %}">Temp Password</a>
+
+            {% elif user.profile.account_status == 'DISABLED_ADMIN' %}
+              <a class="btn compact-btn" href="{% url 'portal_admin:enable_with_temp_password' user.id %}">Temp Password</a>
+
+            {% elif user.profile.account_status == 'REJECTED' and user.profile.role == 'WEB_USER' %}
+              <a class="btn btn-dark compact-btn" href="{% url 'portal_admin:reregister_user_row' user.id %}">Re-Registered</a>
+
+            {% elif user.profile.account_status == 'deleted' %}
+              <span style="color:#64748b; font-size:13px;">No actions</span>
+
+            {% endif %}
+
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5">No users found.</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div id="deleteUserModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 class="modal-title">Confirm User Delete</h3>
+      <p class="modal-text">
+        Are you sure you want to delete web user
+        <strong id="deleteUserEmail"></strong>?
+        <br><br>
+        This will also remove all folder permissions for this user.
+      </p>
+
+      <form id="deleteUserForm" method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="confirm_delete" value="yes">
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary compact-btn" onclick="closeDeleteModal()">No</button>
+          <button type="submit" class="btn btn-danger compact-btn">Yes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  <script>
+    function openDeleteModal(userId, userEmail) {
+      const modal = document.getElementById('deleteUserModal');
+      const emailHolder = document.getElementById('deleteUserEmail');
+      const form = document.getElementById('deleteUserForm');
+
+      emailHolder.textContent = userEmail;
+      form.action = `/admin-portal/users/${userId}/delete/`;
+      modal.style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteUserModal').style.display = 'none';
+    }
+
+    window.addEventListener('click', function (event) {
+      const modal = document.getElementById('deleteUserModal');
+      if (event.target === modal) {
+        closeDeleteModal();
+      }
+    });
+  </script>
+{% endblock %}

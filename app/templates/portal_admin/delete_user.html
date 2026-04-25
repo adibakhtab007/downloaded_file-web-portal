@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Delete User</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Delete User</button>
+  </form>
+
+  <h3>Active Users</h3>
+  <table>
+    <tr>
+      <th>Email</th>
+      <th>Full Name</th>
+      <th>Role</th>
+      <th>Status</th>
+    </tr>
+    {% for user in active_users %}
+    <tr>
+      <td>{{ user.email }}</td>
+      <td>{{ user.profile.full_name }}</td>
+      <td>{{ user.profile.role }}</td>
+      <td>{{ user.profile.account_status }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No active users.</td></tr>
+    {% endfor %}
+  </table>
+
+  <div style="margin-top:15px; display:flex; gap:10px; align-items:center;">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-secondary" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a class="btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

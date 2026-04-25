@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  body {
+    background: #212121;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .auth-shell {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .field.password-field .input {
+    padding-right: 50px;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #595959;
+    padding: 0;
+  }
+  
+  .password-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: #595959;
+  }
+  
+  .password-toggle:hover svg,
+  .password-toggle:focus svg {
+    fill: #3498db;
+  }
+  
+  .password-toggle:focus {
+    outline: none;
+  }
+
+  .auth-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .auth-message {
+    min-width: 260px;
+    max-width: 420px;
+    text-align: center;
+    margin: 0;
+  }
+
+  .auth-card {
+    width: 330px;
+    padding: 40px 30px;
+    background: #dde1e7;
+    border-radius: 18px;
+    box-shadow:
+      -3px -3px 7px #ffffff73,
+      2px 2px 5px rgba(94,104,121,0.288);
+  }
+
+  .auth-logo-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .auth-logo {
+    max-width: 180px;
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .auth-title {
+    font-size: 33px;
+    font-weight: 600;
+    margin-bottom: 35px;
+    color: #595959;
+    text-align: center;
+  }
+
+  .field {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .field .input {
+    height: 100%;
+    width: 100%;
+    padding-left: 45px;
+    padding-right: 14px;
+    outline: none;
+    border: none;
+    font-size: 18px;
+    background: #dde1e7;
+    color: #595959;
+    border-radius: 25px;
+    box-shadow:
+      inset 2px 2px 5px #BABECC,
+      inset -5px -5px 10px #ffffff73;
+    margin: 0;
+  }
+
+  .field .input:focus {
+    box-shadow:
+      inset 1px 1px 2px #BABECC,
+      inset -1px -1px 2px #ffffff73;
+  }
+
+  .field .span {
+    position: absolute;
+    color: #595959;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+  }
+
+  .field .label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 45px;
+    pointer-events: none;
+    color: #666666;
+    font-size: 16px;
+    transition: opacity .15s ease;
+  }
+
+  .field .input:focus + .span + .label,
+  .field .input:not(:placeholder-shown) + .span + .label {
+    opacity: 0;
+  }
+
+  .forgot-pass {
+    text-align: left;
+    margin: -4px 0 14px 5px;
+  }
+
+  .forgot-pass a {
+    font-size: 16px;
+    color: #666666;
+    text-decoration: none;
+  }
+
+  .forgot-pass a:hover {
+    text-decoration: underline;
+  }
+
+  .auth-button {
+    margin: 15px 0;
+    width: 100%;
+    height: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    background: #dde1e7;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: #595959;
+    box-shadow:
+      2px 2px 5px #BABECC,
+      -5px -5px 10px #ffffff73;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .auth-button:focus,
+  .auth-button:hover {
+    color: #3498db;
+  }
+
+  .sign-up {
+    margin: 10px 0;
+    color: #595959;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .sign-up a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .sign-up a:hover {
+    text-decoration: underline;
+  }
+
+  .field-errors,
+  .non-field-errors {
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .non-field-errors {
+    margin-bottom: 14px;
+  }
+
+  .field-errors {
+    margin: -10px 0 12px 4px;
+  }
+
+  .hidden-label {
+    display: none;
+  }
+</style>
+
+<div class="auth-shell">
+  <div class="auth-stack">
+    {% for message in messages %}
+      <div class="msg auth-message {{ message.tags|default:'info' }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+
+    <div class="auth-card">
+      <div class="auth-logo-wrap">
+        <img src="{% static 'images/fiftytwo_logo.png' %}" alt="fiftytwo logo" class="auth-logo">
+      </div>
+
+      <div class="auth-title">Login</div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="non-field-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <label class="hidden-label" for="{{ form.email.id_for_label }}">Email</label>
+        <div class="field">
+          <input
+            required
+            type="email"
+            name="{{ form.email.html_name }}"
+            id="{{ form.email.id_for_label }}"
+            value="{% if form.email.value %}{{ form.email.value }}{% endif %}"
+            class="input"
+            placeholder=" "
+            autocomplete="username">
+          <span class="span">
+            <svg xml:space="preserve" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+              <g>
+                <path fill="#595959" d="M256 0c-74.439 0-135 60.561-135 135s60.561 135 135 135 135-60.561 135-135S330.439 0 256 0zM423.966 358.195C387.006 320.667 338.009 300 286 300h-60c-52.008 0-101.006 20.667-137.966 58.195C51.255 395.539 31 444.833 31 497c0 8.284 6.716 15 15 15h420c8.284 0 15-6.716 15-15 0-52.167-20.255-101.461-57.034-138.805z"></path>
+              </g>
+            </svg>
+          </span>
+          <label class="label" for="{{ form.email.id_for_label }}">Email Address</label>
+        </div>
+        {% if form.email.errors %}
+          <div class="field-errors">{{ form.email.errors }}</div>
+        {% endif %}
+
+        <label class="hidden-label" for="{{ form.password.id_for_label }}">Password</label>
+        <div class="field password-field">
+          <input
+            required
+            type="password"
+            name="{{ form.password.html_name }}"
+            id="{{ form.password.id_for_label }}"
+            class="input"
+            placeholder=" "
+            autocomplete="current-password">
+          <span class="span">
+            <svg xml:space="preserve" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
+              <g>
+                <path fill="#595959" d="M336 192h-16v-64C320 57.406 262.594 0 192 0S64 57.406 64 128v64H48c-26.453 0-48 21.523-48 48v224c0 26.477 21.547 48 48 48h288c26.453 0 48-21.523 48-48V240c0-26.477-21.547-48-48-48zm-229.332-64c0-47.063 38.27-85.332 85.332-85.332s85.332 38.27 85.332 85.332v64H106.668z"></path>
+              </g>
+            </svg>
+          </span>
+          <label class="label" for="{{ form.password.id_for_label }}">Password</label>
+
+          <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password">
+            <svg id="eyeOpen" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5C6.5 5 2.1 8.3 1 12c1.1 3.7 5.5 7 11 7s9.9-3.3 11-7c-1.1-3.7-5.5-7-11-7zm0 11.5A4.5 4.5 0 1 1 12 7a4.5 4.5 0 0 1 0 9.5zm0-7.2A2.7 2.7 0 1 0 12 14.7 2.7 2.7 0 0 0 12 9.3z"/>
+            </svg>
+
+            <svg id="eyeClosed" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+              <path d="M2.3 1 1 2.3l3.1 3.1C2.8 6.5 1.6 8.1 1 10c1.1 3.7 5.5 7 11 7 2.2 0 4.2-.5 6-1.4l3.7 3.7 1.3-1.3L2.3 1zM12 15c-2.8 0-5-2.2-5-5 0-.8.2-1.5.5-2.2l1.5 1.5A2.9 2.9 0 0 0 12 13c.6 0 1.2-.2 1.7-.5l1.5 1.5c-.9.6-2 .9-3.2.9zm10-5c-.8-2.8-3.5-5.2-6.9-6.2l1.7 1.7c2 .9 3.6 2.4 4.2 4.5-.4 1.2-1.2 2.3-2.2 3.2l1.4 1.4c1.1-1.1 1.9-2.3 2.3-3.6z"/>
+            </svg>
+          </button>
+        </div>
+        {% if form.password.errors %}
+          <div class="field-errors">{{ form.password.errors }}</div>
+        {% endif %}
+
+        <div class="forgot-pass">
+          <a href="{% url 'accounts:unlock_account' %}">Forgot Password?</a>
+        </div>
+
+        <button class="auth-button" type="submit">Sign in</button>
+
+        <div class="sign-up">
+          Not a member?
+          <a href="{% url 'accounts:register' %}">signup now</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    const passwordInput = document.getElementById('{{ form.password.id_for_label }}');
+    const toggleBtn = document.getElementById('passwordToggle');
+    const eyeOpen = document.getElementById('eyeOpen');
+    const eyeClosed = document.getElementById('eyeClosed');
+
+    if (!passwordInput || !toggleBtn) return;
+
+    toggleBtn.addEventListener('click', function () {
+      const isHidden = passwordInput.type === 'password';
+
+      passwordInput.type = isHidden ? 'text' : 'password';
+      eyeOpen.style.display = isHidden ? 'none' : 'block';
+      eyeClosed.style.display = isHidden ? 'block' : 'none';
+      toggleBtn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <style>
+    .audit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .audit-title {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .audit-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .search-panel {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .search-grid-3 {
+      display: grid;
+      grid-template-columns: 280px 220px auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .search-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .compact-btn {
+      height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .section-title {
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    .divider {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .audit-table th {
+      background: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .audit-table th,
+    .audit-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    .trace-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    .trace-link:hover {
+      text-decoration: underline;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-failed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-other {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .pagination-box {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .search-grid-3,
+      .search-grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="audit-header">
+    <div>
+      <h2 class="audit-title">Audit Logs</h2>
+      <p class="audit-subtitle">Review portal events, trace journeys, user activity, and security-related actions.</p>
+    </div>
+
+    <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:dashboard' %}">Back</a>
+  </div>
+
+  <div class="search-panel">
+    <form method="get">
+      <div class="search-grid-3">
+        <div>
+          <label for="trace_id"><strong>Trace ID</strong></label>
+          <input type="text" id="trace_id" name="trace_id" value="{{ trace_id_query }}" placeholder="Search by Trace ID"
+                 style="width:100%; height:40px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label for="search_date"><strong>Date Wise Search</strong></label>
+          <input type="date" id="search_date" name="search_date" value="{{ search_date }}"
+                 style="width:100%; height:40px; box-sizing:border-box;">
+        </div>
+        <div class="search-actions">
+          <button type="submit" class="btn compact-btn">Search</button>
+          <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:audit_logs' %}">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    <hr class="divider">
+
+    <h3 class="section-title">Time Range Search</h3>
+    <form method="get">
+      <div class="search-grid-4">
+        <div>
+          <label><strong>From Date</strong></label>
+          <input type="date" name="from_date" value="{{ from_date }}" style="width:100%; height:40px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label><strong>From Time</strong></label>
+          <input type="time" name="from_time" value="{{ from_time }}" style="width:100%; height:40px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label><strong>To Date</strong></label>
+          <input type="date" name="to_date" value="{{ to_date }}" style="width:100%; height:40px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label><strong>To Time</strong></label>
+          <input type="time" name="to_time" value="{{ to_time }}" style="width:100%; height:40px; box-sizing:border-box;">
+        </div>
+      </div>
+
+      <div class="search-actions" style="margin-top:15px;">
+        <button type="submit" class="btn compact-btn">Search Range</button>
+        <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:audit_logs' %}">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <table class="audit-table">
+    <tr>
+      <th>Time</th>
+      <th>Trace ID</th>
+      <th>User</th>
+      <th>Action</th>
+      <th>Status</th>
+      <th>Message</th>
+    </tr>
+
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.created_at }}</td>
+      <td>
+        {% if log.trace_id %}
+          <a class="trace-link" href="{% url 'portal_admin:journey_detail' log.trace_id %}">{{ log.trace_id }}</a>
+        {% endif %}
+      </td>
+      <td>{{ log.email_snapshot }}</td>
+      <td>{{ log.action_type }}</td>
+      <td>
+        {% if log.status == 'SUCCESS' %}
+          <span class="status-pill status-success">{{ log.status }}</span>
+        {% elif log.status == 'FAILED' or log.status == 'DENIED' %}
+          <span class="status-pill status-failed">{{ log.status }}</span>
+        {% else %}
+          <span class="status-pill status-other">{{ log.status }}</span>
+        {% endif %}
+      </td>
+      <td>{{ log.message }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6">No audit logs found.</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div class="pagination-box">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-secondary compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a class="btn compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

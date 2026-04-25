@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <style>
+    .folders-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .folders-title-wrap h2 {
+      margin: 0;
+      color: #0f172a;
+    }
+
+    .folders-subtitle {
+      margin: 6px 0 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .folders-toolbar {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .folders-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .compact-btn {
+      min-height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn-warning {
+      background: #d97706;
+      color: #fff;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .folders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .folders-table th {
+      background: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .folders-table th,
+    .folders-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .folder-name {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .storage-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .path-code {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 13px;
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-word;
+    }
+
+    .empty-row {
+      color: #64748b;
+      text-align: center;
+      padding: 18px 10px;
+    }
+
+    .pagination-box {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-indicator {
+      font-size: 14px;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .folders-table th,
+      .folders-table td {
+        font-size: 14px;
+      }
+    }
+  </style>
+
+  <div class="folders-header">
+    <div class="folders-title-wrap">
+      <h2>Folders</h2>
+      <p class="folders-subtitle">
+        Manage portal storage structure, upload content, and maintain indexed folders across available storage roots.
+      </p>
+    </div>
+
+    <a class="btn btn-secondary compact-btn" href="{% url 'portal_admin:dashboard' %}">Back</a>
+  </div>
+
+  <div class="folders-toolbar">
+    <div class="folders-actions">
+      {% if request.user.profile.role == 'SUPER_ADMIN' %}
+        <a class="btn compact-btn" href="{% url 'portal_admin:create_folder' %}">Create Folder</a>
+        <a class="btn btn-success compact-btn" href="{% url 'portal_admin:upload_file' %}">Upload File</a>
+        <a class="btn btn-warning compact-btn" href="{% url 'portal_admin:delete_folder' %}">Delete Folder</a>
+        <a class="btn btn-danger compact-btn" href="{% url 'portal_admin:delete_file' %}">Delete File</a>
+      {% elif request.user.profile.role == 'ADMIN_READONLY' %}
+        <a class="btn btn-success compact-btn" href="{% url 'portal_admin:upload_file' %}">Upload File</a>
+        <a class="btn btn-warning compact-btn" href="{% url 'portal_admin:delete_folder' %}">Delete Folder</a>
+        <a class="btn btn-danger compact-btn" href="{% url 'portal_admin:delete_file' %}">Delete File</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <table class="folders-table">
+    <tr>
+      <th>Name</th>
+      <th>Storage</th>
+      <th>Relative Path</th>
+    </tr>
+
+    {% for folder in folders %}
+    <tr>
+      <td class="folder-name">{{ folder.display_name }}</td>
+      <td>
+        <span class="storage-badge">{{ folder.storage_root.name }}</span>
+      </td>
+      <td>
+        <span class="path-code">{{ folder.relative_path }}</span>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3" class="empty-row">No folders found.</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div class="pagination-box">
+    {% if page_obj.has_previous %}
+      <a class="btn btn-secondary compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span class="page-indicator">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a class="btn compact-btn" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
