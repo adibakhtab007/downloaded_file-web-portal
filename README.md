@@ -435,7 +435,7 @@ It also shows summary counts for:
 <br>
 
 <p align="center">
-  <img src="./readme_images/admin_dashboard_page.png" alt="Admin Dashboard Page" width="420">
+  <img src="./readme_images/admin_dashboard_page.png" alt="Admin Dashboard Page" width="900">
 </p>
 
 <p align="center">
