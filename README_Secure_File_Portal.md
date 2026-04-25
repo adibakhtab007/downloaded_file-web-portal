@@ -711,6 +711,8 @@ The `web` service will automatically:
 If needed, run manually:
 
 ```bash
+podman-compose exec web python manage.py makemigrations accounts audittrail notifications settings_app storage_index portal_admin portal_user
+podman-compose exec web python manage.py migrate
 podman-compose exec web python manage.py seed_security_questions
 podman-compose exec web python manage.py create_initial_superadmin
 ```
